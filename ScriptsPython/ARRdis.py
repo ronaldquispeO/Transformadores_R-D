@@ -47,23 +47,23 @@ cols_delta = [col for col in df.columns if col.endswith('Delta')]
 df['Max_Dis'] = df[cols_delta].max(axis=1)
 df
 
-# Asignar puntaje DIS según el valor de Max_Dis y la tabla IEEE C57.152-2013
+# Asignar puntaje RDIS según el valor de Max_Dis y la tabla IEEE C57.152-2013
 conditions = [
     df['Max_Dis'] > 3,
     (df['Max_Dis'] > 2) & (df['Max_Dis'] <= 3),
     df['Max_Dis'] <= 2
 ]
 choices = [5, 3, 1]
-df['DIS'] = np.select(conditions, choices, default=np.nan)
+df['RDIS'] = np.select(conditions, choices, default=np.nan)
 
 
 # ---------------------------
 # TABLAS FINALES Y FUNCIONES
 # ---------------------------
-# 1. Tabla con fechas originales: SERIE, FECHA, DIS
-df_DIS = df[['SERIE', 'FECHA', 'DIS']].copy()
+# 1. Tabla con fechas originales: SERIE, FECHA, RDIS
+df_DIS = df[['SERIE', 'FECHA', 'RDIS']].copy()
 
-# 2. Tabla con fechas extendidas: SERIE, FECHA, DIS
+# 2. Tabla con fechas extendidas: SERIE, FECHA, RDIS
 inicio = "2015-01-01"
 fecha_inicio = pd.Timestamp(inicio)
 fecha_fin = pd.Timestamp.today().normalize()
@@ -80,7 +80,7 @@ df_DIS_ext = df_DIS_ext.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(
 
 # 3. Tabla de detalles con fechas originales
 cols_final = [col for col in df.columns if not col.endswith('Delta') and col != 'Max_Dis']
-cols_final = ['SERIE', 'FECHA', 'DIS'] + [col for col in cols_final if col not in ['SERIE', 'FECHA', 'DIS']]
+cols_final = ['SERIE', 'FECHA', 'RDIS'] + [col for col in cols_final if col not in ['SERIE', 'FECHA', 'RDIS']]
 df_detalles = df[cols_final].copy()
 
 # 4. Tabla de detalles con fechas extendidas
