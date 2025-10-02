@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from ARRrohm import get_df_extendida_ROHM, get_df_ROHM
 from ARRrtra import get_df_extendida_RTRA, get_df_RTRA
+from ARRdis import get_df_DIS, get_df_extendida_DIS
 from functools import reduce
 
 # =============================
@@ -26,10 +27,11 @@ def calcular_ARR(row, pesos):
 def get_df_detalles_ARR():
     ROHM = get_df_ROHM()
     RTRA = get_df_RTRA()
+    RDIS = get_df_DIS()
     tablas = {
         "ROHM": ROHM,
         "RTRA": RTRA,
-        # "RDIS": RDIS,
+        "RDIS": RDIS,
     }
     # Filtramos los que no sean None
     tablas = {k: v for k, v in tablas.items() if v is not None}
@@ -61,10 +63,11 @@ def get_df_detalles_ARR():
 def get_df_detalles_ext_ARR():
     ROHM = get_df_extendida_ROHM()
     RTRA = get_df_extendida_RTRA()
+    RDIS = get_df_extendida_DIS()
     tablas = {
         "ROHM": ROHM,
         "RTRA": RTRA,
-        # "RDIS": RDIS,
+        "RDIS": RDIS
     }
     # Filtramos los que no sean None
     tablas = {k: v for k, v in tablas.items() if v is not None}
@@ -104,5 +107,5 @@ def get_df_extendida_ARR():
     return df_ARR
 
 print(get_df_detalles_ARR().head())
-print(get_df_detalles_ext_ARR().head())
+print(get_df_detalles_ext_ARR())
 
