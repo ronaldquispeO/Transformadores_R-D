@@ -92,5 +92,8 @@ df_BUS = df_BUS.rename(columns={"FECHA": "FECHA DE MUESTRA"})
 # def get_df_extendida_BUS():
 #     return df_BUS
 
-print(get_df_detalles_BUS())
-print(get_df_detalles_ext_BUS().head())
+
+def get_df_extendida_BUS():
+    return df_BUS
+
+__all__ = ["get_df_extendida_BUS"]

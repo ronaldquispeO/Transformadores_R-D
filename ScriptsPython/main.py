@@ -11,9 +11,10 @@ from ARR import get_df_extendida_ARR
 from AIS import get_df_extendida_AIS
 # from AIS import get_df_AIS
 # from ARR import get_df_ARR
-# from NUC import get_df_NUC
-# from OLTC import get_df_OLTC
-# from BUS import get_df_BUS
+
+from NUC import get_df_extendida_NUC
+from OLTC import get_df_extendida_OLTC
+from BUS import get_df_extendida_BUS
 
 # =============================
 # PESOS DE LOS ÍNDICES
@@ -46,19 +47,21 @@ def obtener_HI():
     ACE = get_df_extendida_ACE()
     AIS = get_df_extendida_AIS()
     ARR = get_df_extendida_ARR()
-    # NUC = get_df_NUC()
-    # OLTC = get_df_OLTC()
-    # BUS = get_df_BUS()
+
+    NUC = get_df_extendida_NUC()
+    OLTC = get_df_extendida_OLTC()
+    BUS = get_df_extendida_BUS()
 
     # Guardamos en un diccionario (solo los disponibles)
+
     tablas = {
         "DGA": DGA,
         "ACE": ACE,
         "ARR": ARR,
         "AIS": AIS,
-        # "NUC": NUC,
-        # "OLTC": OLTC,
-        # "BUS": BUS
+        "NUC": NUC,
+        "OLTC": OLTC,
+        "BUS": BUS
     }
 
     # Filtramos los que no sean None

@@ -52,6 +52,9 @@ base_ext = pd.concat([df_OLTC, ultimos_2014], ignore_index=True)
 df_OLTC_ext = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA DE MUESTRA"], how="left")
 df_OLTC_ext = df_OLTC_ext.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
+def get_df_extendida_OLTC():
+    return df_OLTC_ext
+
 # 3. Tabla de detalles con fechas originales
 df_detalles = df[['SERIE', 'FECHA DE MUESTRA', 'OLTC', 'RD', 'H20']].copy()
 
