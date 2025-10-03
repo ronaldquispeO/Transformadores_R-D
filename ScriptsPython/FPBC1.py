@@ -115,14 +115,14 @@ def get_df_detalles_ext_FP_C1():
 # DEMO DE RESULTADOS
 # ---------------------------
 print("\n ====== TABLA FPBC1 ORIGINAL ====== \n")
-print(get_df_FP_C1().head(), "\n")
+print(get_df_FP_C1().tail(), "\n")
 
 print("\n ====== TABLA FPBC1 EXTENDIDA ====== \n")
-print(get_df_extendida_FP_C1().head(), "\n")
+print(get_df_extendida_FP_C1().tail(), "\n")
 
 print("\n ====== TABLA DETALLADA FPBC1 ====== \n")
 print(get_df_detalles_FP_C1().head(), "\n")
 
 print("\n ====== TABLA DETALLADA EXTENDIDA FPBC1 ====== \n")
-print(get_df_detalles_ext_FP_C1().head(), "\n")
+print(get_df_detalles_ext_FP_C1().tail(), "\n")
 

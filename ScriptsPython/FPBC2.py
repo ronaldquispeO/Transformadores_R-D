@@ -117,10 +117,10 @@ print("\n ====== TABLA FPBC2 ORIGINAL ====== \n")
 print(get_df_FP_C2().head(), "\n")
 
 print("\n ====== TABLA FPBC2 EXTENDIDA ====== \n")
-print(get_df_extendida_FP_C2().head(), "\n")
+print(get_df_extendida_FP_C2().tail(), "\n")
 
 print("\n ====== TABLA DETALLADA FPBC2 ====== \n")
 print(get_df_detalles_FP_C2().head(), "\n")
 
 print("\n ====== TABLA DETALLADA EXTENDIDA FPBC2 ====== \n")
-print(get_df_detalles_ext_FP_C2().head(), "\n")
+print(get_df_detalles_ext_FP_C2().tail(), "\n")
