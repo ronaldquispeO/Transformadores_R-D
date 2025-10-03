@@ -37,7 +37,14 @@ cols_drop = [
 ]
 df = df.drop(columns=cols_drop)
 
-df["FECHA DE MUESTRA"] = pd.to_datetime(df["FECHA DE MUESTRA"], errors="coerce")
+print("Columnas originales:", list(df.columns))
+if "FECHA DE\nMUESTRA" in df.columns:
+    df = df.rename(columns={"FECHA DE\nMUESTRA": "FECHA"})
+elif "FECHA DE MUESTRA" in df.columns:
+    df = df.rename(columns={"FECHA DE MUESTRA": "FECHA"})
+elif "FECHA" not in df.columns:
+    raise KeyError("No se encontró ninguna columna de fecha reconocida en el archivo. Columnas: " + str(list(df.columns)))
+df["FECHA"] = pd.to_datetime(df["FECHA"], errors="coerce")
 df["TENSION"] = df["TENSION"].str.split("/").str[0]
 
 rename_map = {
@@ -52,7 +59,7 @@ rename_map = {
 }
 df = df.rename(columns=rename_map)
 
-orden = ["SERIE", "TENSION", "FECHA DE MUESTRA", "FP25", "FP100", "HU", "AC", "TIF", "CO", "RD", "IO"]
+orden = ["SERIE", "TENSION", "FECHA", "FP25", "FP100", "HU", "AC", "TIF", "CO", "RD", "IO"]
 df = df[orden]
 
 num_cols = ["FP25", "FP100", "HU", "AC", "TIF", "CO", "RD", "IO"]
@@ -122,7 +129,7 @@ def calcular_ACE(row, pesos):
     return sum(valores) / total_peso if total_peso > 0 else float("nan")
 
 df["ACE"] = df.apply(lambda row: calcular_ACE(row, pesos), axis=1)
-df_ACE = df[["SERIE", "FECHA DE MUESTRA", "ACE"]]
+df_ACE = df[["SERIE", "FECHA", "ACE"]]
 
 # =====================================
 # EXTENSIÓN DEL CALENDARIO (DESDE 2025)
@@ -133,35 +140,35 @@ fecha_inicio = pd.Timestamp(inicio)  # en el 2026 cambiar ---****
 fecha_fin = pd.Timestamp.today().normalize()
 fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
 todas_series = df['SERIE'].dropna().unique()
-calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE","FECHA DE MUESTRA"])
+calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE","FECHA"])
 df_calendario = pd.DataFrame(index=calendario).reset_index()
 
 # Última medición antes de 2025
-ultimos_2024 = df_ACE[df_ACE['FECHA DE MUESTRA'] < fecha_inicio].sort_values('FECHA DE MUESTRA').groupby('SERIE').tail(1)
-ultimos_2024['FECHA DE MUESTRA'] = fecha_inicio
+ultimos_2024 = df_ACE[df_ACE['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
+ultimos_2024['FECHA'] = fecha_inicio
 base_ext = pd.concat([df_ACE, ultimos_2024], ignore_index=True)
-df_extendida = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA DE MUESTRA"], how="left")
+df_extendida = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA"], how="left")
 df_extendida = df_extendida.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # Extender detalles
-ultimos_2024_det = df_full[df_full['FECHA DE MUESTRA'] < fecha_inicio].sort_values('FECHA DE MUESTRA').groupby('SERIE').tail(1)
-ultimos_2024_det['FECHA DE MUESTRA'] = fecha_inicio
+ultimos_2024_det = df_full[df_full['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
+ultimos_2024_det['FECHA'] = fecha_inicio
 base_ext_det = pd.concat([df_full, ultimos_2024_det], ignore_index=True)
-df_extendida_detalles = pd.merge(df_calendario, base_ext_det, on=["SERIE","FECHA DE MUESTRA"], how="left")
+df_extendida_detalles = pd.merge(df_calendario, base_ext_det, on=["SERIE","FECHA"], how="left")
 df_extendida_detalles = df_extendida_detalles.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # =====================================
 # DETALLES + ACE
 # =====================================
-df_detalles = pd.merge(df_full, df_ACE, on=["SERIE","FECHA DE MUESTRA"], how="left")
-df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA DE MUESTRA"], how="left")
+df_detalles = pd.merge(df_full, df_ACE, on=["SERIE","FECHA"], how="left")
+df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA"], how="left")
 
 # Reordenar para que ACE quede después de FECHA
 def reordenar(df_in):
     cols = list(df_in.columns)
     if "ACE" in cols:
         cols.remove("ACE")
-        idx = cols.index("FECHA DE MUESTRA") + 1
+        idx = cols.index("FECHA") + 1
         cols = cols[:idx] + ["ACE"] + cols[idx:]
     return df_in[cols]
 

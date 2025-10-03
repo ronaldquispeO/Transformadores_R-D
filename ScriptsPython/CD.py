@@ -110,10 +110,22 @@ def get_df_extendida_CD():
     return df_extendida_CD
 
 def get_df_detalles_CD():
-    return df_full
+    # Quitar columnas que terminan en Delta
+    cols = [c for c in df_full.columns if not c.endswith('Delta')]
+    # Reordenar: SERIE, FECHA, CD, ...resto
+    base = ['SERIE', 'FECHA', 'CD']
+    resto = [c for c in cols if c not in base]
+    orden = base + resto
+    return df_full[orden]
 
 def get_df_detalles_ext_CD():
-    return df_detalles_ext_CD
+    # Quitar columnas que terminan en Delta
+    cols = [c for c in df_detalles_ext_CD.columns if not c.endswith('Delta')]
+    # Reordenar: SERIE, FECHA, CD, ...resto
+    base = ['SERIE', 'FECHA', 'CD']
+    resto = [c for c in cols if c not in base]
+    orden = base + resto
+    return df_detalles_ext_CD[orden]
 
 # ---------------------------
 # DEMO DE RESULTADOS

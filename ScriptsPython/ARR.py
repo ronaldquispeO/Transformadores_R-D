@@ -47,7 +47,7 @@ def get_df_detalles_ARR():
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA DE MUESTRA
+    # Ordenamos por SERIE y FECHA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
@@ -83,7 +83,7 @@ def get_df_detalles_ext_ARR():
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA DE MUESTRA
+    # Ordenamos por SERIE y FECHA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
@@ -101,7 +101,7 @@ def get_df_detalles_ext_ARR():
 
 df_ARR_detalles = get_df_detalles_ext_ARR()
 df_ARR = df_ARR_detalles[['SERIE','FECHA','ARR']]
-df_ARR = df_ARR.rename(columns={'FECHA': 'FECHA DE MUESTRA'})
+df_ARR = df_ARR.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
 
 def get_df_extendida_ARR():
     return df_ARR

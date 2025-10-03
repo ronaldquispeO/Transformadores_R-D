@@ -25,9 +25,18 @@ if df is None:
 df = df.drop(columns=['Unnamed: 0'])
 # df["TENSION"] = df["TENSION"].str.split("/").str[0]
 df = df.iloc[:, :10]
-df = df.rename(columns={"FECHA DE\nMUESTRA": "FECHA DE MUESTRA"})
-df['FECHA DE MUESTRA'] = pd.to_datetime(df['FECHA DE MUESTRA'], errors='coerce')
-df = df.dropna(subset=['FECHA DE MUESTRA'])
+
+# Intentar renombrar la columna de fecha correctamente
+print("Columnas originales:", list(df.columns))
+if "FECHA DE\nMUESTRA" in df.columns:
+    df = df.rename(columns={"FECHA DE\nMUESTRA": "FECHA"})
+elif "FECHA DE MUESTRA" in df.columns:
+    df = df.rename(columns={"FECHA DE MUESTRA": "FECHA"})
+elif "FECHA" not in df.columns:
+    raise KeyError("No se encontró ninguna columna de fecha reconocida en el archivo. Columnas: " + str(list(df.columns)))
+
+df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
+df = df.dropna(subset=['FECHA'])
 
 # Guardar tabla original (solo fechas de medición)
 # df_full = df.drop(columns=["TENSION"]).copy()
@@ -57,7 +66,7 @@ for gas in gases2:
 # ---------------------------
 for gas in gases2:
     df[f"tasa_{gas}"] = df.groupby("SERIE").apply(
-        lambda g: (g[gas].diff(-1) / ((g["FECHA DE MUESTRA"] - g["FECHA DE MUESTRA"].shift(-1)).dt.days) * 365)
+    lambda g: (g[gas].diff(-1) / ((g["FECHA"] - g["FECHA"].shift(-1)).dt.days) * 365)
     ).reset_index(level=0, drop=True)
 
 # ---------------------------
@@ -88,7 +97,7 @@ weight = {"C2H2":5,"H2":2,"CH4":3,"C2H4":4,"C2H6":3,"CO":2,"CO2":1}
 total_weight = sum(weight.values())
 df['DGA'] = df.apply(lambda row: sum(row[f'puntaje_{gas}']*weight[gas] for gas in gases2)/total_weight, axis=1)
 
-df_DGA = df[['SERIE','FECHA DE MUESTRA','DGA']]
+df_DGA = df[['SERIE','FECHA','DGA']]
 
 # ---------------------------
 # EXTENSIÓN DEL CALENDARIO DESDE 2025
@@ -101,37 +110,37 @@ fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
 
 # Calendario
 todas_series = df['SERIE'].dropna().unique()
-calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE","FECHA DE MUESTRA"])
+calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE","FECHA"])
 df_calendario = pd.DataFrame(index=calendario).reset_index()
 
 # ---------- Tabla extendida de DGA ----------
-ultimos_2024 = df_DGA[df_DGA['FECHA DE MUESTRA'] < fecha_inicio].sort_values('FECHA DE MUESTRA').groupby('SERIE').tail(1)
-ultimos_2024['FECHA DE MUESTRA'] = fecha_inicio
+ultimos_2024 = df_DGA[df_DGA['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
+ultimos_2024['FECHA'] = fecha_inicio
 base_ext = pd.concat([df_DGA, ultimos_2024], ignore_index=True)
 
-df_extendida = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA DE MUESTRA"], how="left")
+df_extendida = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA"], how="left")
 df_extendida = df_extendida.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # ---------- Tabla extendida de detalles ----------
-ultimos_2024_det = df_full[df_full['FECHA DE MUESTRA'] < fecha_inicio].sort_values('FECHA DE MUESTRA').groupby('SERIE').tail(1)
-ultimos_2024_det['FECHA DE MUESTRA'] = fecha_inicio
+ultimos_2024_det = df_full[df_full['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
+ultimos_2024_det['FECHA'] = fecha_inicio
 base_ext_det = pd.concat([df_full, ultimos_2024_det], ignore_index=True)
 
-df_extendida_detalles = pd.merge(df_calendario, base_ext_det, on=["SERIE","FECHA DE MUESTRA"], how="left")
+df_extendida_detalles = pd.merge(df_calendario, base_ext_det, on=["SERIE","FECHA"], how="left")
 df_extendida_detalles = df_extendida_detalles.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # ---------------------------
 # DETALLES + DGA
 # ---------------------------
-df_detalles = pd.merge(df_full, df_DGA, on=["SERIE","FECHA DE MUESTRA"], how="left")
-df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA DE MUESTRA"], how="left")
+df_detalles = pd.merge(df_full, df_DGA, on=["SERIE","FECHA"], how="left")
+df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA"], how="left")
 
-# Reordenar columnas: poner DGA después de FECHA DE MUESTRA
+# Reordenar columnas: poner DGA después de FECHA
 def reordenar(df_in):
     cols = list(df_in.columns)
     if "DGA" in cols:
         cols.remove("DGA")
-        idx = cols.index("FECHA DE MUESTRA") + 1
+        idx = cols.index("FECHA") + 1
         cols = cols[:idx] + ["DGA"] + cols[idx:]
     return df_in[cols]
 

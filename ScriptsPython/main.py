@@ -70,17 +70,17 @@ def obtener_HI():
     if not tablas:
         return pd.DataFrame()
 
-    # Merge progresivo de todas las tablas (asumimos que todas ya tienen SERIE + FECHA DE MUESTRA extendidos)
+    # Merge progresivo de todas las tablas (asumimos que todas ya tienen SERIE + FECHA extendidos)
     resultado = reduce(
-        lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA DE MUESTRA"], how="outer"),
+    lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA"], how="outer"),
         tablas.values()
     )
 
-    # Asegurar tipo datetime en FECHA DE MUESTRA
-    resultado["FECHA DE MUESTRA"] = pd.to_datetime(resultado["FECHA DE MUESTRA"], errors="coerce")
+    # Asegurar tipo datetime en FECHA
+    resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
     # Ordenamos por SERIE y FECHA DE MUESTRA
-    resultado = resultado.sort_values(by=["SERIE", "FECHA DE MUESTRA"]).reset_index(drop=True)
+    resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
     # Calcular HI
@@ -88,7 +88,7 @@ def obtener_HI():
     resultado["HI"] = resultado.apply(lambda row: calcular_HI(row, pesos_hi), axis=1)
 
     # Selección de columnas finales
-    columnas_finales = ["SERIE", "FECHA DE MUESTRA", "HI"] + [col for col in tablas.keys()]
+    columnas_finales = ["SERIE", "FECHA", "HI"] + [col for col in tablas.keys()]
     resultado = resultado[columnas_finales]
     
     return resultado

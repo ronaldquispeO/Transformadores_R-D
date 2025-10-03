@@ -50,6 +50,8 @@ def get_df_detalles_BUS():
     )
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
+    # # Convertir FECHA a solo date (sin hora)
+    # resultado["FECHA"] = resultado["FECHA"].dt.date
     resultado["BUS"] = resultado.apply(lambda row: calcular_BUS(row, pesos_BUS), axis=1)
     columnas_finales = ["SERIE", "FECHA", "BUS"] + [col for col in tablas.keys()]
     resultado = resultado[columnas_finales]
@@ -77,6 +79,8 @@ def get_df_detalles_ext_BUS():
     )
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
+    # # Convertir FECHA a solo date (sin hora)
+    # resultado["FECHA"] = resultado["FECHA"].dt.date
     resultado["BUS"] = resultado.apply(lambda row: calcular_BUS(row, pesos_BUS), axis=1)
     columnas_finales = ["SERIE", "FECHA", "BUS"] + [col for col in tablas.keys()]
     resultado = resultado[columnas_finales]
@@ -87,7 +91,7 @@ def get_df_detalles_ext_BUS():
 # =============================
 df_BUS_detalles = get_df_detalles_ext_BUS()
 df_BUS = df_BUS_detalles[["SERIE","FECHA","BUS"]]
-df_BUS = df_BUS.rename(columns={"FECHA": "FECHA DE MUESTRA"})
+df_BUS = df_BUS.rename(columns={"FECHA DE MUESTRA": "FECHA"})
 
 # def get_df_extendida_BUS():
 #     return df_BUS
@@ -97,3 +101,5 @@ def get_df_extendida_BUS():
     return df_BUS
 
 __all__ = ["get_df_extendida_BUS"]
+
+print(get_df_extendida_BUS())
