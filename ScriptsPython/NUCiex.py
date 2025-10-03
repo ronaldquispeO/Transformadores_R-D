@@ -47,4 +47,64 @@ cols_final = [col for col in df.columns if not col.endswith('Delta') and col != 
 # Aseguramos el orden: SERIE, FECHA, IEX primero
 cols_final = ['SERIE', 'FECHA', 'IEX'] + [col for col in cols_final if col not in ['SERIE', 'FECHA', 'IEX']]
 df_final = df[cols_final]
-print(df_final)
+
+# =============================
+# TABLAS FINALES Y FUNCIONES
+# =============================
+# 1. Tabla con fechas originales: SERIE, FECHA, IEX
+cols_base = [col for col in df_final.columns if col in ['SERIE', 'FECHA', 'IEX']]
+df_IEX = df_final[cols_base].copy()
+
+# 2. Tabla con fechas extendidas: SERIE, FECHA, IEX
+inicio = "2015-01-01"
+fecha_inicio = pd.Timestamp(inicio)
+fecha_fin = pd.Timestamp.today().normalize()
+fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
+todas_series = df['SERIE'].dropna().unique()
+calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE", "FECHA"])
+df_calendario = pd.DataFrame(index=calendario).reset_index()
+
+ultimos_2014 = df_IEX[df_IEX['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
+ultimos_2014['FECHA'] = fecha_inicio
+base_ext = pd.concat([df_IEX, ultimos_2014], ignore_index=True)
+df_IEX_ext = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA"], how="left")
+df_IEX_ext = df_IEX_ext.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
+
+# 3. Tabla de detalles con fechas originales
+cols_detalles = [col for col in df_final.columns]
+cols_detalles = ['SERIE', 'FECHA', 'IEX'] + [col for col in cols_detalles if col not in ['SERIE', 'FECHA', 'IEX']]
+df_detalles = df_final[cols_detalles].copy()
+
+# 4. Tabla de detalles con fechas extendidas
+ultimos_2014_det = df_detalles[df_detalles['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
+ultimos_2014_det['FECHA'] = fecha_inicio
+base_ext_det = pd.concat([df_detalles, ultimos_2014_det], ignore_index=True)
+df_detalles_ext = pd.merge(df_calendario, base_ext_det, on=["SERIE","FECHA"], how="left")
+df_detalles_ext = df_detalles_ext.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
+
+# =============================
+# FUNCIONES PARA LLAMAR
+# =============================
+def get_df_IEX():
+    return df_IEX
+
+def get_df_extendida_IEX():
+    return df_IEX_ext
+
+def get_df_detalles_IEX():
+    return df_detalles
+
+def get_df_detalles_ext_IEX():
+    return df_detalles_ext
+
+# =============================
+# PRINT DE TABLAS
+# =============================
+print('\n ====== TABLA CON FECHAS ORIGINALES ====== \n')
+print(get_df_IEX(), '\n')
+print('\n ====== TABLA CON FECHAS EXTENDIDAS ====== \n')
+print(get_df_extendida_IEX().head(), '\n')
+print('\n ====== TABLA DE DETALLES CON FECHAS ORIGINALES ====== \n')
+print(get_df_detalles_IEX().head(), '\n')
+print('\n ====== TABLA DE DETALLES CON FECHAS EXTENDIDAS ====== \n')
+print(get_df_detalles_ext_IEX().tail(), '\n')
