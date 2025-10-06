@@ -31,18 +31,9 @@ df['Puntaje_H2O'] = np.where(df['H20'] > 30, 5, 1)
 # OLTC = (5 * Puntaje_RD + 3 * Puntaje_H2O) / 8
 df['OLTC'] = (5 * df['Puntaje_RD'] + 3 * df['Puntaje_H2O']) / 8
 
-
-# Verificar y renombrar columna de fecha
-print("Columnas originales:", list(df.columns))
-if "FECHA DE\nMUESTRA" in df.columns:
-    df = df.rename(columns={"FECHA DE\nMUESTRA": "FECHA"})
-elif "FECHA DE MUESTRA" in df.columns:
-    df = df.rename(columns={"FECHA DE MUESTRA": "FECHA"})
-elif "FECHA" not in df.columns:
-    raise KeyError("No se encontró ninguna columna de fecha reconocida en el archivo. Columnas: " + str(list(df.columns)))
-
 # Filtrar y reordenar columnas
 columnas_orden = ['SERIE', 'FECHA', 'OLTC', 'RD', 'H20']
+df = df.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
 df_full  = df[columnas_orden]
 # 1. Tabla con fechas originales
 df_OLTC = df[['SERIE', 'FECHA', 'OLTC']].copy()
@@ -64,6 +55,7 @@ df_OLTC_ext = df_OLTC_ext.groupby("SERIE").apply(lambda g: g.ffill()).reset_inde
 
 def get_df_extendida_OLTC():
     return df_OLTC_ext
+
 
 # 3. Tabla de detalles con fechas originales
 df_detalles = df[['SERIE', 'FECHA', 'OLTC', 'RD', 'H20']].copy()

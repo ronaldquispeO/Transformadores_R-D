@@ -67,19 +67,25 @@ def obtener_HI():
     # Filtramos los que no sean None
     tablas = {k: v for k, v in tablas.items() if v is not None}
 
+    # DEBUG: Mostrar columnas de cada DataFrame antes del merge
+    for nombre, df in tablas.items():
+        print(f"[{nombre}] columnas: {list(df.columns)}")
+        if 'FECHA' not in df.columns:
+            print(f"⚠️ ERROR: El DataFrame '{nombre}' NO tiene columna 'FECHA'.")
+
     if not tablas:
         return pd.DataFrame()
 
     # Merge progresivo de todas las tablas (asumimos que todas ya tienen SERIE + FECHA extendidos)
     resultado = reduce(
-    lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA"], how="outer"),
+        lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA"], how="outer"),
         tablas.values()
     )
 
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA DE MUESTRA
+    # Ordenamos por SERIE y FECHA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================

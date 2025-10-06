@@ -25,16 +25,10 @@ if df is None:
 df = df.drop(columns=['Unnamed: 0'])
 # df["TENSION"] = df["TENSION"].str.split("/").str[0]
 df = df.iloc[:, :10]
-
-# Intentar renombrar la columna de fecha correctamente
-print("Columnas originales:", list(df.columns))
-if "FECHA DE\nMUESTRA" in df.columns:
-    df = df.rename(columns={"FECHA DE\nMUESTRA": "FECHA"})
-elif "FECHA DE MUESTRA" in df.columns:
-    df = df.rename(columns={"FECHA DE MUESTRA": "FECHA"})
-elif "FECHA" not in df.columns:
-    raise KeyError("No se encontró ninguna columna de fecha reconocida en el archivo. Columnas: " + str(list(df.columns)))
-
+if 'FECHA DE MUESTRA' in df.columns:
+    df = df.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
+elif 'FECHA DE\nMUESTRA' in df.columns:
+    df = df.rename(columns={'FECHA DE\nMUESTRA': 'FECHA'})
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
 df = df.dropna(subset=['FECHA'])
 
@@ -66,7 +60,7 @@ for gas in gases2:
 # ---------------------------
 for gas in gases2:
     df[f"tasa_{gas}"] = df.groupby("SERIE").apply(
-    lambda g: (g[gas].diff(-1) / ((g["FECHA"] - g["FECHA"].shift(-1)).dt.days) * 365)
+        lambda g: (g[gas].diff(-1) / ((g["FECHA"] - g["FECHA"].shift(-1)).dt.days) * 365)
     ).reset_index(level=0, drop=True)
 
 # ---------------------------
@@ -135,7 +129,7 @@ df_extendida_detalles = df_extendida_detalles.groupby("SERIE").apply(lambda g: g
 df_detalles = pd.merge(df_full, df_DGA, on=["SERIE","FECHA"], how="left")
 df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA"], how="left")
 
-# Reordenar columnas: poner DGA después de FECHA
+    # Reordenar columnas: poner DGA después de FECHA
 def reordenar(df_in):
     cols = list(df_in.columns)
     if "DGA" in cols:

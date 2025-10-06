@@ -37,14 +37,11 @@ cols_drop = [
 ]
 df = df.drop(columns=cols_drop)
 
-print("Columnas originales:", list(df.columns))
-if "FECHA DE\nMUESTRA" in df.columns:
-    df = df.rename(columns={"FECHA DE\nMUESTRA": "FECHA"})
-elif "FECHA DE MUESTRA" in df.columns:
-    df = df.rename(columns={"FECHA DE MUESTRA": "FECHA"})
-elif "FECHA" not in df.columns:
-    raise KeyError("No se encontró ninguna columna de fecha reconocida en el archivo. Columnas: " + str(list(df.columns)))
-df["FECHA"] = pd.to_datetime(df["FECHA"], errors="coerce")
+if 'FECHA DE MUESTRA' in df.columns:
+    df = df.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
+elif 'FECHA DE\nMUESTRA' in df.columns:
+    df = df.rename(columns={'FECHA DE\nMUESTRA': 'FECHA'})
+df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
 df["TENSION"] = df["TENSION"].str.split("/").str[0]
 
 rename_map = {

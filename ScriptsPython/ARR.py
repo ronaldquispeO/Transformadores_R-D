@@ -11,7 +11,7 @@ from functools import reduce
 pesos_ARR = {
     'ROHM': 3,
     'RTRA': 5,
-    'ZCC': 5,
+    'RDIS': 5,
 }
 # =============================
 # FUNCIÓN PARA CALCULAR ARR
@@ -47,7 +47,7 @@ def get_df_detalles_ARR():
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA
+    # Ordenamos por SERIE y FECHA DE MUESTRA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
@@ -83,7 +83,7 @@ def get_df_detalles_ext_ARR():
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA
+    # Ordenamos por SERIE y FECHA DE MUESTRA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
@@ -101,11 +101,13 @@ def get_df_detalles_ext_ARR():
 
 df_ARR_detalles = get_df_detalles_ext_ARR()
 df_ARR = df_ARR_detalles[['SERIE','FECHA','ARR']]
-df_ARR = df_ARR.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
+
 
 def get_df_extendida_ARR():
     return df_ARR
+hola= get_df_detalles_ext_ARR()
+print(get_df_detalles_ARR())
+print(print(hola[(hola['FECHA'].dt.year == 2018) & (hola['FECHA'].dt.month == 6) & (hola['SERIE'] == "146660T3")]))
+# print(get_df_detalles_ext_ARR())
 
-print(get_df_detalles_ARR().head())
-print(get_df_detalles_ext_ARR())
-
+print(df_ARR[(df_ARR['FECHA'].dt.year == 2018) & (df_ARR['FECHA'].dt.month == 6) & (df_ARR['SERIE'] == "146660T3")])

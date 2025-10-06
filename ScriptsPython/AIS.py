@@ -49,7 +49,7 @@ def get_df_detalles_AIS():
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA
+    # Ordenamos por SERIE y FECHA DE MUESTRA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
@@ -85,7 +85,7 @@ def get_df_detalles_ext_AIS():
     # Asegurar tipo datetime en FECHA
     resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
 
-    # Ordenamos por SERIE y FECHA
+    # Ordenamos por SERIE y FECHA DE MUESTRA
     resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
 
     # ============================
@@ -100,7 +100,7 @@ def get_df_detalles_ext_AIS():
 
 df_AIS_detalles = get_df_detalles_ext_AIS()
 df_AIS = df_AIS_detalles[['SERIE','FECHA','AIS']]
-df_AIS = df_AIS.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
+
 
 def get_df_extendida_AIS():
     return df_AIS
@@ -109,3 +109,4 @@ df_arr = get_df_detalles_AIS()
 df_arr_detalles = df_arr[['SERIE','FECHA','AIS']]
 print(df_arr.head())
 print(get_df_detalles_ext_AIS().head())
+print(df_AIS)
