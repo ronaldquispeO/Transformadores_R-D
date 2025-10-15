@@ -9,9 +9,6 @@ from DGA import get_df_extendida_DGA
 from ACE import get_df_extendida_ACE
 from ARR import get_df_extendida_ARR
 from AIS import get_df_extendida_AIS
-# from AIS import get_df_AIS
-# from ARR import get_df_ARR
-
 from NUC import get_df_extendida_NUC
 from OLTC import get_df_extendida_OLTC
 from BUS import get_df_extendida_BUS
@@ -47,7 +44,6 @@ def obtener_HI():
     ACE = get_df_extendida_ACE()
     AIS = get_df_extendida_AIS()
     ARR = get_df_extendida_ARR()
-
     NUC = get_df_extendida_NUC()
     OLTC = get_df_extendida_OLTC()
     BUS = get_df_extendida_BUS()

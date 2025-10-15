@@ -17,7 +17,7 @@ for path in addresses:
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
-
+ 
 
 # ---------------------------
 # LIMPIEZA DE DATOS
@@ -129,7 +129,7 @@ df_extendida_detalles = df_extendida_detalles.groupby("SERIE").apply(lambda g: g
 df_detalles = pd.merge(df_full, df_DGA, on=["SERIE","FECHA"], how="left")
 df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA"], how="left")
 
-    # Reordenar columnas: poner DGA después de FECHA
+# Reordenar columnas: poner DGA después de FECHA
 def reordenar(df_in):
     cols = list(df_in.columns)
     if "DGA" in cols:
