@@ -23,6 +23,7 @@ if df is None:
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
+df["SERIE"] = df["SERIE"].astype(str)
 df.columns = df.columns.str.replace(r"\n", " ", regex=True).str.strip()
 df = df.dropna(axis=1, how="all")
 

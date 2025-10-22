@@ -25,6 +25,7 @@ if df is None:
 # LIMPIEZA DE DATOS
 # ---------------------------
 df = df.drop(columns=df.columns[0])
+df["SERIE"] = df["SERIE"].astype(str)
 cols_base = ['SERIE', 'FECHA']
 
 # quedarnos solo con columnas de capacitancia (pF)

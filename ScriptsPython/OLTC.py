@@ -24,6 +24,7 @@ if df is None:
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
+df["SERIE"] = df["SERIE"].astype(str)
 df = df.drop(columns=df.columns[0])
 df = df.rename(columns={'Valor RD (2mm gap) (kV/2mm)': 'RD', 'Valor H2O (ppm)': 'H20'})
 

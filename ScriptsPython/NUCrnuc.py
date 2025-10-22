@@ -18,6 +18,7 @@ for path in addresses:
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 
+df["SERIE"] = df["SERIE"].astype(str)
 df = df.drop(columns=['Unnamed: 0'])
 df =df.rename(columns={'FECHA DE MUESTRA':'FECHA'})  # Elimina espacios en los nombres de las columnas
 df

@@ -19,6 +19,7 @@ if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 
 df = df.drop(columns=['Unnamed: 0'])
+df["SERIE"] = df["SERIE"].astype(str)
 df = df.rename(columns ={'FECHA DE MUESTRA':'FECHA'})
 
 

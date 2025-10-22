@@ -61,7 +61,7 @@ df = df[orden]
 
 num_cols = ["FP25", "FP100", "HU", "AC", "TIF", "CO", "RD", "IO"]
 df[num_cols] = df[num_cols].apply(pd.to_numeric, errors="coerce")
-
+df["SERIE"] = df["SERIE"].astype(str)
 # Guardar tabla original sin tensión
 # df_full = df.drop(columns=["TENSION"]).copy()
 df_full = df.drop(columns=["TENSION"]).copy()

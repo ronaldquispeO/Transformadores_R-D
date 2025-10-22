@@ -23,6 +23,7 @@ if df is None:
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
+df["SERIE"] = df["SERIE"].astype(str)
 df = df.dropna(axis=1, how='all')
 df['Fecha'] = pd.to_datetime(df['Fecha'], errors="coerce")
 

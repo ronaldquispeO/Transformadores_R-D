@@ -31,7 +31,7 @@ elif 'FECHA DE\nMUESTRA' in df.columns:
     df = df.rename(columns={'FECHA DE\nMUESTRA': 'FECHA'})
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
 df = df.dropna(subset=['FECHA'])
-
+df["SERIE"] = df["SERIE"].astype(str)
 # Guardar tabla original (solo fechas de medición)
 # df_full = df.drop(columns=["TENSION"]).copy()
 df_full = df.copy()
@@ -160,10 +160,10 @@ print('\n ====== TABLA CON FECHAS ORIGINALES ====== \n')
 print(get_df_DGA(), '\n')
 
 print('\n ====== TABLA CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_extendida_DGA().head(), '\n')
+print(get_df_extendida_DGA().tail(), '\n')
 
 print('\n ====== TABLA DE DETALLES DE DGA CON FECHAS ORIGINALES ====== \n')
 print(get_df_detalles_DGA().head(), '\n')
 
 print('\n ====== TABLA DE DETALLES DE DGA CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_detalles_ext_DGA().head(), '\n')
+print(get_df_detalles_ext_DGA()[get_df_detalles_ext_DGA()["SERIE"]=="338118"].tail(10), '\n')

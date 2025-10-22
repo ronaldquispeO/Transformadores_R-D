@@ -22,7 +22,7 @@ if df is None:
 df = df.drop(columns=df.columns[0])
 # Aseguramos que FECHA sea datetime
 df["FECHA"] = pd.to_datetime(df["FECHA"], errors="coerce")
-
+df["SERIE"] = df["SERIE"].astype(str)
 
 cap_cols = df.iloc[:,2:]
 

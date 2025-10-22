@@ -111,3 +111,4 @@ print(df_HI)
 # print(df_HI[df_HI['SERIE']==146916]) prueba para unico valor en ROHM
 # Exportar CSV (opcional)
 # df_HI.to_csv("dataset_HI.csv", index=False, encoding="utf-8-sig")
+

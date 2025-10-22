@@ -28,6 +28,7 @@ if df is None:
 df = df.iloc[:, 1:]   # quitar primera columna vacía
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors="coerce")
 df = df.dropna(subset=['FECHA'])
+df["SERIE"] = df["SERIE"].astype(str)
 df_full = df.copy()   # copia de detalles originales
 
 # ---------------------------

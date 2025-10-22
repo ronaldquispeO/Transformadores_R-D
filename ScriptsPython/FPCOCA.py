@@ -24,6 +24,7 @@ if df is None:
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
+df["SERIE"] = df["SERIE"].astype(str)
 df = df.drop(columns=df.columns[0])
 cols_base = ['SERIE', 'FECHA']
 
