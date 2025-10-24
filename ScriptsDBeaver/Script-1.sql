@@ -5,8 +5,8 @@ SELECT
 FROM 
     scada_lectura
 WHERE 
-    (celda LIKE 'TRA%' OR celda LIKE 'TRF%') 
-    AND cod_scada LIKE 'BALNEARI/%/TRF1'
+   	(cod_scada LIKE 'ASIA%220%TRA1') AND 
+   	(fecha_hora LIKE '2025-06-01%')
 ORDER BY 
     fecha_hora ASC;
 	
