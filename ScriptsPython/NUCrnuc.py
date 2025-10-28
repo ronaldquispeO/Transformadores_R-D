@@ -25,6 +25,7 @@ df
 
 # Asignar puntaje RNUC según la tabla NETA ATS 2021
 # Suponiendo que la columna de valores se llama 'VALOR' (ajusta si es diferente)
+
 col = [c for c in df.columns if c not in ['SERIE', 'FECHA']][0]
 df['RNUC'] = np.where(df[col] < 500, 5, 1)
 df = df[['SERIE','FECHA','RNUC','Valor (MΩ)']]
