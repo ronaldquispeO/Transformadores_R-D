@@ -23,10 +23,10 @@ if df is None:
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
+df["SERIE"] = df["SERIE"].astype(str)
 df = df.iloc[:, 1:]   # quitar primera columna vacía
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors="coerce")
 df = df.dropna(subset=['FECHA'])
-df["SERIE"] = df["SERIE"].astype(str)
 df_full = df.copy()   # copia de detalles originales
 
 # ---------------------------
@@ -40,6 +40,7 @@ for col in res_cols:
     ref_mapped = df["SERIE"].map(ref)
 
     # variación porcentual
+    df[col] = pd.to_numeric(df[col], errors='coerce')
     delta = abs((df[col] - ref_mapped) / ref_mapped) * 100
     delta = delta.replace([np.inf, -np.inf], np.nan)
 

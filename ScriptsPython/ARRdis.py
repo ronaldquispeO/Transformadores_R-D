@@ -109,7 +109,7 @@ def get_df_detalles_ext_DIS():
 # PRINT DE TABLAS
 # ---------------------------
 print('\n ====== TABLA CON FECHAS ORIGINALES ====== \n')
-print(get_df_DIS().head(), '\n')
+print(get_df_DIS().head(20), '\n')
 print('\n ====== TABLA CON FECHAS EXTENDIDAS ====== \n')
 print(get_df_extendida_DIS().head(), '\n')
 print('\n ====== TABLA DE DETALLES CON FECHAS ORIGINALES ====== \n')

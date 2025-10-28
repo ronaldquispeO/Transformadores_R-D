@@ -141,4 +141,5 @@ print("\n ====== TABLA DETALLADA CD ====== \n")
 print(get_df_detalles_CD().head(), "\n")
 
 print("\n ====== TABLA DETALLADA EXTENDIDA CD ====== \n")
-print(get_df_detalles_ext_CD().head(), "\n")
+print(get_df_detalles_ext_CD().tail(), "\n")
+

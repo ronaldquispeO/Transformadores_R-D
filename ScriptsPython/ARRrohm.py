@@ -37,11 +37,13 @@ df_full = df.copy()   # copia de detalles originales
 res_cols = [c for c in df.columns if c.endswith("[mΩ]")]
 
 for col in res_cols:
+    df[col] = pd.to_numeric(df[col], errors='coerce')
     # valor inicial por SERIE en la fecha mínima
     ref = df.groupby("SERIE").apply(lambda g: g.loc[g["FECHA"].idxmin(), col])
     ref_mapped = df["SERIE"].map(ref)
 
     # variación porcentual
+    
     delta = abs((df[col] - ref_mapped) / ref_mapped) * 100
     delta = delta.replace([np.inf, -np.inf], np.nan)
 
@@ -139,4 +141,4 @@ print(get_df_extendida_ROHM().head(), '\n')
 print('\n ====== TABLA DE DETALLES CON FECHAS ORIGINALES ====== \n')
 print(get_df_detalles_ROHM().head(), '\n')
 print('\n ====== TABLA DE DETALLES CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_detalles_ext_ROHM().head(), '\n')
+print(get_df_detalles_ext_ROHM().tail(), '\n')

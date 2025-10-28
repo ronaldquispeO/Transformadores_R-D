@@ -98,4 +98,4 @@ def get_df_extendida_BUS():
 
 __all__ = ["get_df_extendida_BUS"]
 
-print(get_df_extendida_BUS())
+print(get_df_extendida_BUS().tail())

@@ -139,4 +139,5 @@ print("\n ====== TABLA DETALLADA CBC1 ====== \n")
 print(get_df_detalles_C_C1().head(), "\n")
 
 print("\n ====== TABLA DETALLADA EXTENDIDA CBC1 ====== \n")
-print(get_df_detalles_ext_C_C1().head(), "\n")
+print(get_df_detalles_ext_C_C1().tail(), "\n")
+

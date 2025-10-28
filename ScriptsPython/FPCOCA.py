@@ -113,4 +113,4 @@ print("\n ====== TABLA DETALLADA CC ====== \n")
 print(get_df_detalles_CC().head(), "\n")
 
 print("\n ====== TABLA DETALLADA EXTENDIDA CC ====== \n")
-print(get_df_detalles_ext_CC().head(), "\n")
+print(get_df_detalles_ext_CC().tail(), "\n")
