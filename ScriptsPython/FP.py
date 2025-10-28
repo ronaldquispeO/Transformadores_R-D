@@ -117,5 +117,4 @@ print("\n ====== TABLA DETALLADA FPDEVANADO ====== \n")
 print(get_df_detalles_FP().head(), "\n")
 
 print("\n ====== TABLA DETALLADA EXTENDIDA FPDEVANADO ====== \n")
-print(get_df_detalles_ext_FP().head(), "\n")
-
+print(get_df_detalles_ext_FP().tail(), "\n")
