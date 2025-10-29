@@ -10,7 +10,7 @@ try:
     password = urllib.parse.quote_plus("delangeluz")
     
     # Crear engine de conexión
-    engine = create_engine(f'postgresql+psycopg2://postgres:{password}@localhost:5432/postgres')
+    engine = create_engine(f'postgresql+psycopg2://postgres:{password}@localhost:5432/transformadores')
     
     # Importar directamente el DataFrame a PostgreSQL
     # if_exists='replace' = borra la tabla si existe y crea una nueva
