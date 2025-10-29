@@ -107,7 +107,7 @@ dataset_HI = df_HI   # 👉 Power BI la reconocerá como tabla BD_IndiceSalud
 # Tablas detalle (llamando directo a sus funciones si quieres verlas por separado)
 # dataset_DGA = get_df_DGA()
 # dataset_ACE = get_df_ACE()
-print(df_HI)
+print(df_HI[(df_HI['SERIE'] == "146916") & (df_HI['FECHA'] == '2025-10-29')])
 # print(df_HI[df_HI['SERIE']==146916]) prueba para unico valor en ROHM
 # Exportar CSV (opcional)
 # df_HI.to_csv("dataset_HI.csv", index=False, encoding="utf-8-sig")

@@ -20,11 +20,12 @@ for path in addresses:
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
-
+df["SERIE"] = df["SERIE"].astype(str)
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
-df["SERIE"] = df["SERIE"].astype(str)
+
 df = df.drop(columns=df.columns[0])  # elimina la primera columna vacía
 cols_base = ['SERIE', 'FECHA']
 cols_fp = [col for col in df.columns if col.endswith('%')]

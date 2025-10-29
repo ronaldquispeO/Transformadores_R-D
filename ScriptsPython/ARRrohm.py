@@ -21,14 +21,15 @@ for path in addresses:
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
-
+df["SERIE"] = df["SERIE"].astype(str)
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
 df = df.iloc[:, 1:]   # quitar primera columna vacía
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors="coerce")
 df = df.dropna(subset=['FECHA'])
-df["SERIE"] = df["SERIE"].astype(str)
+# df["SERIE"] = df["SERIE"].astype(str)
 df_full = df.copy()   # copia de detalles originales
 
 # ---------------------------

@@ -17,7 +17,8 @@ for path in addresses:
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
-
+df["SERIE"] = df["SERIE"].astype(str)
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
 df = df.drop(columns=['Unnamed: 0'])
 
 df = df.rename(columns ={'FECHA DE MUESTRA':'FECHA'})
@@ -104,7 +105,7 @@ def get_df_detalles_ext_IEX():
 print('\n ====== TABLA CON FECHAS ORIGINALES ====== \n')
 print(get_df_IEX().head(20), '\n')
 print('\n ====== TABLA CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_extendida_IEX().head(), '\n')
+print(get_df_extendida_IEX().tail(), '\n')
 print('\n ====== TABLA DE DETALLES CON FECHAS ORIGINALES ====== \n')
 print(get_df_detalles_IEX().head(), '\n')
 print('\n ====== TABLA DE DETALLES CON FECHAS EXTENDIDAS ====== \n')

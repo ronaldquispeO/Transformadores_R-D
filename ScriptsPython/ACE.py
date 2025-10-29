@@ -22,6 +22,8 @@ for path in addresses:
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
+df["SERIE"] = df["SERIE"].astype(str)
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
 
 # =====================================
 # LIMPIEZA Y FORMATEO DE DATOS
@@ -197,5 +199,5 @@ print(get_df_extendida_ACE().head())
 print('\n ====== TABLA DE DETALLES CON FECHAS ORIGINALES ====== \n')
 print(get_df_detalles_ACE().head())
 print('\n ====== TABLA DE DETALLES CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_detalles_ext_ACE().head())
+print(get_df_detalles_ext_ACE().tail())
 
