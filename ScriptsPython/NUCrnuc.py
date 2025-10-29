@@ -25,10 +25,11 @@ df =df.rename(columns={'FECHA DE MUESTRA':'FECHA'})  # Elimina espacios en los n
 df
 
 # Asignar puntaje RNUC según la tabla NETA ATS 2021
-# Suponiendo que la columna de valores se llama 'VALOR' (ajusta si es diferente)
-
+# MODIFICACIÓN: Solo asignar puntaje donde hay valores, dejar NaN donde no hay
 col = [c for c in df.columns if c not in ['SERIE', 'FECHA']][0]
-df['RNUC'] = np.where(df[col] < 500, 5, 1)
+df['RNUC'] = np.where(df[col].notna(), 
+                     np.where(df[col] < 500, 5, 1), 
+                     np.nan)
 df = df[['SERIE','FECHA','RNUC','Valor (MΩ)']]
 print(df)
 

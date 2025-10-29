@@ -31,17 +31,21 @@ df['Fecha'] = pd.to_datetime(df['Fecha'], errors="coerce")
 # ---------------------------
 # CONFIGURACIÓN DE PUNTAJE FUR
 # ---------------------------
-df['FUR'] = np.select(
-    [
-        df['2-Furfuraldehido (FAL, ppb)'] > 5000,
-        (df['2-Furfuraldehido (FAL, ppb)'] > 1000) & (df['2-Furfuraldehido (FAL, ppb)'] <= 5000),
-        (df['2-Furfuraldehido (FAL, ppb)'] > 500) & (df['2-Furfuraldehido (FAL, ppb)'] <= 1000),
-        (df['2-Furfuraldehido (FAL, ppb)'] > 100) & (df['2-Furfuraldehido (FAL, ppb)'] <= 500),
-        df['2-Furfuraldehido (FAL, ppb)'] <= 100
-    ],
-    [5, 4, 3, 2, 1],
-    default=np.nan
-)
+# Verificar si la columna existe y tiene datos
+if '2-Furfuraldehido (FAL, ppb)' in df.columns:
+    df['FUR'] = np.select(
+        [
+            df['2-Furfuraldehido (FAL, ppb)'] > 5000,
+            (df['2-Furfuraldehido (FAL, ppb)'] > 1000) & (df['2-Furfuraldehido (FAL, ppb)'] <= 5000),
+            (df['2-Furfuraldehido (FAL, ppb)'] > 500) & (df['2-Furfuraldehido (FAL, ppb)'] <= 1000),
+            (df['2-Furfuraldehido (FAL, ppb)'] > 100) & (df['2-Furfuraldehido (FAL, ppb)'] <= 500),
+            df['2-Furfuraldehido (FAL, ppb)'] <= 100
+        ],
+        [5, 4, 3, 2, 1],
+        default=np.nan
+    )
+else:
+    df['FUR'] = np.nan
 
 # ---------------------------
 # TABLAS BASE

@@ -37,11 +37,21 @@ df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
 df = df.dropna(subset=['FECHA'])
 
 # ---------------------------
-# PUNTAJES Y CÁLCULO OLTC
+# PUNTAJES Y CÁLCULO OLTC - MODIFICADO
 # ---------------------------
-df['Puntaje_RD'] = np.where(df['RD'] < 30, 5, 1)
-df['Puntaje_H2O'] = np.where(df['H20'] > 30, 5, 1)
-df['OLTC'] = (5 * df['Puntaje_RD'] + 3 * df['Puntaje_H2O']) / 8
+# Solo asignar puntaje donde hay valores, dejar NaN donde no hay
+df['Puntaje_RD'] = np.where(df['RD'].notna(), 
+                           np.where(df['RD'] < 30, 5, 1), 
+                           np.nan)
+
+df['Puntaje_H2O'] = np.where(df['H20'].notna(), 
+                            np.where(df['H20'] > 30, 5, 1), 
+                            np.nan)
+
+# Calcular OLTC solo si ambos puntajes tienen valores
+df['OLTC'] = np.where(df['Puntaje_RD'].notna() & df['Puntaje_H2O'].notna(),
+                     (5 * df['Puntaje_RD'] + 3 * df['Puntaje_H2O']) / 8,
+                     np.nan)
 
 # ---------------------------
 # TABLAS BASE
