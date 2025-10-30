@@ -3,6 +3,7 @@ import numpy as np
 from FP import get_df_FP, get_df_extendida_FP
 from CD import get_df_CD, get_df_extendida_CD
 from FURANOS import get_df_FUR, get_df_extendida_FUR
+from ECC import get_df_ECC, get_df_extendida_ECC
 from functools import reduce
 
 # =============================
@@ -10,7 +11,7 @@ from functools import reduce
 # =============================
 pesos_AIS = {
     'V': 1,
-    'ICC': 5,
+    'ECC': 5,
     'FUR': 2,
     'FPDEVANADO':2,
     'CD':3
@@ -30,10 +31,12 @@ def get_df_detalles_AIS():
     FPDEVANADO = get_df_FP()
     CD = get_df_CD()
     FUR = get_df_FUR()
+    ECC = get_df_ECC()
     tablas = {
         "FPDEVANADO": FPDEVANADO,
         "CD": CD,
         "FUR": FUR,
+        "ECC": ECC
     }
     # Filtramos los que no sean None
     tablas = {k: v for k, v in tablas.items() if v is not None}
@@ -66,10 +69,12 @@ def get_df_detalles_ext_AIS():
     FPDEVANADO = get_df_extendida_FP()
     CD = get_df_extendida_CD()
     FUR = get_df_extendida_FUR()
+    ECC = get_df_extendida_ECC()
     tablas = {
         "FPDEVANADO": FPDEVANADO,
         "CD": CD,
         "FUR": FUR,
+        "ECC": ECC
     }
     # Filtramos los que no sean None
     tablas = {k: v for k, v in tablas.items() if v is not None}

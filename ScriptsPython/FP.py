@@ -109,7 +109,7 @@ def get_df_detalles_ext_FP():
 # DEMO DE RESULTADOS
 # ---------------------------
 print("\n ====== TABLA FPDEVANADO ORIGINAL ====== \n")
-print(get_df_FP(), "\n")
+print(get_df_FP().tail(), "\n")
 
 print("\n ====== TABLA FPDEVANADO EXTENDIDA ====== \n")
 print(get_df_extendida_FP().head(), "\n")
