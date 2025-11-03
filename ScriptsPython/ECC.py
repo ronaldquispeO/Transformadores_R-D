@@ -25,7 +25,6 @@ df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
 # LIMPIEZA DE DATOS
 # ---------------------------
 df = df.drop(columns=['Unnamed: 0'])
-# df["TENSION"] = df["TENSION"].str.split("/").str[0]
 df = df.iloc[:, :10]
 if 'FECHA DE MUESTRA' in df.columns:
     df = df.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
@@ -34,20 +33,17 @@ elif 'FECHA DE\nMUESTRA' in df.columns:
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
 df = df.dropna(subset=['FECHA'])
 df["SERIE"] = df["SERIE"].astype(str)
-# Guardar tabla original (solo fechas de medición)
-# df_full = df.drop(columns=["TENSION"]).copy()
 df_full = df.copy()
 print(df)
 
 # ---------------------------
-# LÓGICA ECC - ASIGNAR PUNTAJE (CORREGIDA)
+# LÓGICA ECC - ASIGNAR PUNTAJE
 # ---------------------------
 
 def asignar_puntaje_ecc(valor_ecc):
     """
     Asigna puntaje según la lógica de Energía Acumulada
     """
-    # SI es NaN, devolver NaN
     if pd.isna(valor_ecc):
         return np.nan
     
@@ -65,16 +61,15 @@ def asignar_puntaje_ecc(valor_ecc):
 # Aplicar la lógica ECC
 df['puntaje_ECC'] = df['EAC'].apply(asignar_puntaje_ecc)
 
-# Crear tabla ECC (similar a DGA) - SOLO filas con valores reales
+# Crear tabla ECC - SOLO filas con valores reales
 df_ECC = df[['SERIE', 'FECHA', 'puntaje_ECC']].copy()
 df_ECC = df_ECC.rename(columns={'puntaje_ECC': 'ECC'})
 
 # ---------------------------
-# EXTENSIÓN DEL CALENDARIO (MISMA LÓGICA QUE DGA)
+# EXTENSIÓN DEL CALENDARIO (CORREGIDA)
 # ---------------------------
 
 inicio = "2015-01-01"
-desde_2025 = f"{pd.Timestamp.today().year}-01-01"
 fecha_inicio = pd.Timestamp(inicio)
 fecha_fin = pd.Timestamp.today().normalize()
 fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
@@ -85,25 +80,28 @@ calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE","
 df_calendario = pd.DataFrame(index=calendario).reset_index()
 
 # ---------- Tabla extendida de ECC ----------
-ultimos_2024 = df_ECC[df_ECC['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
-ultimos_2024['FECHA'] = fecha_inicio
-base_ext = pd.concat([df_ECC, ultimos_2024], ignore_index=True)
-
-df_extendida = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA"], how="left")
+df_extendida = pd.merge(df_calendario, df_ECC, on=["SERIE","FECHA"], how="left")
 df_extendida = df_extendida.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # ---------- Tabla extendida de detalles ----------
-# SOLO unir sin ffill para mantener NaN donde no hay datos
+# CORRECCIÓN: Hacer ffill también para EAC y otras columnas
 df_extendida_detalles = pd.merge(df_calendario, df_full, on=["SERIE","FECHA"], how="left")
+df_extendida_detalles = df_extendida_detalles.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # ---------------------------
 # DETALLES + ECC (CORREGIDO)
 # ---------------------------
+
 # Para detalles originales: unir normalmente
 df_detalles = pd.merge(df_full, df_ECC, on=["SERIE","FECHA"], how="left")
 
-# Para detalles extendidos: unir extendida_detalles (con NaN) con extendida_ECC
-df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA"], how="left")
+# Para detalles extendidos: unir extendida_detalles (CON EAC extendido) con extendida_ECC
+df_detalles_ext = pd.merge(
+    df_extendida_detalles, 
+    df_extendida[['SERIE', 'FECHA', 'ECC']], 
+    on=["SERIE","FECHA"], 
+    how="left"
+)
 
 # Reordenar columnas: poner ECC después de FECHA
 def reordenar(df_in):
@@ -118,7 +116,7 @@ df_detalles = reordenar(df_detalles)
 df_detalles_ext = reordenar(df_detalles_ext)
 
 # ---------------------------
-# FUNCIONES PARA LLAMAR (MISMA ESTRUCTURA QUE DGA)
+# FUNCIONES PARA LLAMAR
 # ---------------------------
 def get_df_ECC():
     return df_ECC
@@ -145,4 +143,6 @@ print('\n ====== TABLA DE DETALLES DE ECC CON FECHAS ORIGINALES ====== \n')
 print(get_df_detalles_ECC().head(), '\n')
 
 print('\n ====== TABLA DE DETALLES DE ECC CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_detalles_ext_ECC()[get_df_detalles_ext_ECC()["SERIE"]=="D518293"].tail(10), '\n')
+resultado = get_df_detalles_ext_ECC()[get_df_detalles_ext_ECC()["SERIE"]=="D518293"].tail(10)
+print(resultado)
+
