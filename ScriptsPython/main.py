@@ -7,11 +7,11 @@ sys.path.append(r"C:\Users\RONALD Q\OneDrive - LUZ DEL SUR S.A.A\Documentos\Estu
 
 from DGA import get_df_extendida_DGA,get_df_DGA
 from ACE import get_df_extendida_ACE,get_df_ACE
-from ARR import get_df_extendida_ARR,get_df_ARR
-from AIS import get_df_extendida_AIS,get_df_AIS
-from NUC import get_df_extendida_NUC,get_df_NUC
+from ARR import get_df_extendida_ARR,get_df_ARR,get_df_detalles_rellenado_ARR
+from AIS import get_df_extendida_AIS,get_df_AIS,get_df_detalles_rellenado_AIS
+from NUC import get_df_extendida_NUC,get_df_NUC,get_df_detalles_rellenado_NUC
 from OLTC import get_df_extendida_OLTC,get_df_OLTC
-from BUS import get_df_extendida_BUS,get_df_BUS
+from BUS import get_df_extendida_BUS,get_df_BUS,get_df_detalles_rellenado_BUS
 
 # =============================
 # PESOS DE LOS ÍNDICES
@@ -43,11 +43,11 @@ def obtener_HI_original():
     # Llamar a las funciones (ya extendidas)
     DGA = get_df_DGA()
     ACE = get_df_ACE()
-    AIS = get_df_AIS()
-    ARR = get_df_ARR()
-    NUC = get_df_NUC()
+    AIS = get_df_detalles_rellenado_AIS()
+    ARR = get_df_detalles_rellenado_ARR()
+    NUC = get_df_detalles_rellenado_NUC()
     OLTC = get_df_OLTC()
-    BUS = get_df_BUS()
+    BUS = get_df_detalles_rellenado_BUS()
 
     # Guardamos en un diccionario (solo los disponibles)
     tablas = {

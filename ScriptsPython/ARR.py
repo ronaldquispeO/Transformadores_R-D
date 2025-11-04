@@ -96,6 +96,51 @@ def get_df_detalles_ext_ARR():
     resultado = resultado[columnas_finales]
     return resultado
 
+def get_df_detalles_rellenado_ARR():
+    ROHM = get_df_ROHM()
+    RTRA = get_df_RTRA()
+    RDIS = get_df_DIS()
+    tablas = {
+        "ROHM": ROHM,
+        "RTRA": RTRA,
+        "RDIS": RDIS,
+    }
+    # Filtramos los que no sean None
+    tablas = {k: v for k, v in tablas.items() if v is not None}
+
+    if not tablas:
+        return pd.DataFrame()
+    
+    # Merge progresivo de todas las tablas (asumimos que todas ya tienen SERIE + FECHA extendidos)
+    resultado = reduce(
+        lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA"], how="outer"),
+        tablas.values()
+    )
+    # Asegurar tipo datetime en FECHA
+    resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
+
+    # Ordenamos por SERIE y FECHA DE MUESTRA
+    resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
+
+    # ============================
+    # 🔥 RELLENAR PARÁMETROS ANTES DE CALCULAR ARR
+    # ============================
+    # Agrupar por serie y rellenar cada parámetro hacia adelante
+    columnas_parametros = list(tablas.keys())  # ["ROHM", "RTRA", "RDIS"]
+    
+    for columna in columnas_parametros:
+        if columna in resultado.columns:
+            resultado[columna] = resultado.groupby("SERIE")[columna].ffill()
+
+    # ============================
+    # Calcular ARR
+    # ============================
+    resultado["ARR"] = resultado.apply(lambda row: calcular_ARR(row, pesos_ARR), axis=1)
+
+    # Selección de columnas finales
+    columnas_finales = ["SERIE", "FECHA", "ARR"] + [col for col in tablas.keys()]
+    resultado = resultado[columnas_finales]
+    return resultado
 
 
 
@@ -108,9 +153,11 @@ def get_df_ARR():
 def get_df_extendida_ARR():
     return df_ARR
 hola= get_df_detalles_ext_ARR()
-print(get_df_detalles_ARR().head())
-print(get_df_detalles_ext_ARR().tail())
+# print(get_df_detalles_ARR().head())
+# print(get_df_detalles_ext_ARR().tail())
 # print(print(hola[(hola['FECHA'].dt.year == 2018) & (hola['FECHA'].dt.month == 6) & (hola['SERIE'] == "146660T3")]))
 # # print(get_df_detalles_ext_ARR())
-print(df_full)
+# print(df_full)
 # print(df_ARR[(df_ARR['FECHA'].dt.year == 2018) & (df_ARR['FECHA'].dt.month == 6) & (df_ARR['SERIE'] == "146660T3")])
+
+print(get_df_detalles_rellenado_ARR().head())

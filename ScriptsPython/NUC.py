@@ -73,6 +73,44 @@ def get_df_detalles_ext_NUC():
     resultado = resultado[columnas_finales]
     return resultado
 
+def get_df_detalles_rellenado_NUC():
+    RNUC = get_df_RNUC()
+    IEX = get_df_IEX()
+    tablas = {
+        "RNUC": RNUC,
+        "IEX": IEX,
+        # "VEX": VEX,  # Agregar cuando esté disponible
+    }
+    tablas = {k: v for k, v in tablas.items() if v is not None}
+    if not tablas:
+        return pd.DataFrame()
+    from functools import reduce
+    resultado = reduce(
+        lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA"], how="outer"),
+        tablas.values()
+    )
+    resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
+    resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
+
+    # ============================
+    # 🔥 RELLENAR PARÁMETROS ANTES DE CALCULAR NUC
+    # ============================
+    # Agrupar por serie y rellenar cada parámetro hacia adelante
+    columnas_parametros = list(tablas.keys())  # ["RNUC", "IEX"]
+    
+    for columna in columnas_parametros:
+        if columna in resultado.columns:
+            resultado[columna] = resultado.groupby("SERIE")[columna].ffill()
+
+    # ============================
+    # Calcular NUC
+    # ============================
+    resultado["NUC"] = resultado.apply(lambda row: calcular_NUC(row, pesos_NUC), axis=1)
+
+    columnas_finales = ["SERIE", "FECHA", "NUC"] + [col for col in tablas.keys()]
+    resultado = resultado[columnas_finales]
+    return resultado
+
 df_NUC_detalles = get_df_detalles_ext_NUC()
 df_NUC = df_NUC_detalles[["SERIE", "FECHA", "NUC"]]
 df_NUC = df_NUC.rename(columns={"FECHA DE MUESTRA": "FECHA"})
@@ -84,6 +122,7 @@ def get_df_NUC():
 def get_df_extendida_NUC():
     return df_NUC
 
-print(get_df_detalles_NUC().head())
-print(get_df_detalles_ext_NUC())
-print(df_NUC)
+# print(get_df_detalles_NUC().head())
+# print(get_df_detalles_ext_NUC())
+# print(df_NUC)
+print(get_df_detalles_rellenado_NUC().head())

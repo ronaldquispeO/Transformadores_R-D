@@ -82,6 +82,49 @@ def get_df_detalles_ext_BUS():
     resultado = resultado[columnas_finales]
     return resultado
 
+def get_df_detalles_rellenado_BUS():
+    FPBC1 = get_df_FP_C1()
+    FPBC2 = get_df_FP_C2()
+    CBC1 = get_df_C_C1()
+    CBC2 = get_df_C_C2()
+    CC = get_df_CC()
+    tablas = {
+        "FPBC1": FPBC1,
+        "FPBC2": FPBC2,
+        "CBC1": CBC1,
+        "CBC2": CBC2,
+        "CC": CC,
+    }
+    tablas = {k: v for k, v in tablas.items() if v is not None}
+    if not tablas:
+        return pd.DataFrame()
+    
+    resultado = reduce(
+        lambda left, right: pd.merge(left, right, on=["SERIE", "FECHA"], how="outer"),
+        tablas.values()
+    )
+    resultado["FECHA"] = pd.to_datetime(resultado["FECHA"], errors="coerce")
+    resultado = resultado.sort_values(by=["SERIE", "FECHA"]).reset_index(drop=True)
+
+    # ============================
+    # 🔥 RELLENAR PARÁMETROS ANTES DE CALCULAR BUS
+    # ============================
+    # Agrupar por serie y rellenar cada parámetro hacia adelante
+    columnas_parametros = list(tablas.keys())  # ["FPBC1", "FPBC2", "CBC1", "CBC2", "CC"]
+    
+    for columna in columnas_parametros:
+        if columna in resultado.columns:
+            resultado[columna] = resultado.groupby("SERIE")[columna].ffill()
+
+    # ============================
+    # Calcular BUS
+    # ============================
+    resultado["BUS"] = resultado.apply(lambda row: calcular_BUS(row, pesos_BUS), axis=1)
+
+    columnas_finales = ["SERIE", "FECHA", "BUS"] + [col for col in tablas.keys()]
+    resultado = resultado[columnas_finales]
+    return resultado
+
 # =============================
 # TABLAS FINALES
 # =============================
@@ -102,4 +145,4 @@ def get_df_extendida_BUS():
 
 __all__ = ["get_df_extendida_BUS"]
 
-print(get_df_extendida_BUS().tail())
+print(get_df_detalles_rellenado_BUS().tail())
