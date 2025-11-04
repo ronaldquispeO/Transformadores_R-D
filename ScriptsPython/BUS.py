@@ -87,7 +87,11 @@ def get_df_detalles_ext_BUS():
 # =============================
 df_BUS_detalles = get_df_detalles_ext_BUS()
 df_BUS = df_BUS_detalles[["SERIE","FECHA","BUS"]]
+df_full_detallado = get_df_detalles_BUS()
+df_full = df_full_detallado[["SERIE","FECHA","BUS"]]
 
+def get_df_BUS():
+    return df_full
 
 # def get_df_extendida_BUS():
 #     return df_BUS

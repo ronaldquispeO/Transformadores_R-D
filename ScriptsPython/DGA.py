@@ -166,4 +166,11 @@ print('\n ====== TABLA DE DETALLES DE DGA CON FECHAS ORIGINALES ====== \n')
 print(get_df_detalles_DGA().head(), '\n')
 
 print('\n ====== TABLA DE DETALLES DE DGA CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_detalles_ext_DGA()[get_df_detalles_ext_DGA()["SERIE"]=="338118"].tail(10), '\n')
+# Filtrar por serie y rango de fechas
+filtro = get_df_detalles_ext_DGA()[
+    (get_df_detalles_ext_DGA()["SERIE"] == "123160T") & 
+    (get_df_detalles_ext_DGA()["FECHA"] >= "2025-02-08") & 
+    (get_df_detalles_ext_DGA()["FECHA"] <= "2025-02-13")
+]
+
+print(filtro.tail(10), '\n')

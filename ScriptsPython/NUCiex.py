@@ -36,6 +36,7 @@ for col in cols_val:
     mask = df[col].isna() | ref_mapped.isna() | (ref_mapped == 0) | (df[col] == 0)
     delta[mask] = np.nan
     df[f'{col}_Delta'] = delta
+    
 # Calcular el máximo de las columnas que terminan en 'Delta' para cada fila
 cols_delta = [col for col in df.columns if col.endswith('Delta')]
 df['Max_Iex'] = df[cols_delta].max(axis=1)

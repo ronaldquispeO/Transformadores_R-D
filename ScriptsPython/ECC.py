@@ -145,4 +145,3 @@ print(get_df_detalles_ECC().head(), '\n')
 print('\n ====== TABLA DE DETALLES DE ECC CON FECHAS EXTENDIDAS ====== \n')
 resultado = get_df_detalles_ext_ECC()[get_df_detalles_ext_ECC()["SERIE"]=="D518293"].tail(10)
 print(resultado)
-

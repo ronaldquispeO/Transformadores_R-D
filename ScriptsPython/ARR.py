@@ -101,8 +101,10 @@ def get_df_detalles_ext_ARR():
 
 df_ARR_detalles = get_df_detalles_ext_ARR()
 df_ARR = df_ARR_detalles[['SERIE','FECHA','ARR']]
-
-
+df_full_detallado = get_df_detalles_ARR()
+df_full = df_full_detallado[['SERIE','FECHA','ARR']]
+def get_df_ARR():
+    return df_full
 def get_df_extendida_ARR():
     return df_ARR
 hola= get_df_detalles_ext_ARR()
@@ -110,5 +112,5 @@ print(get_df_detalles_ARR().head())
 print(get_df_detalles_ext_ARR().tail())
 # print(print(hola[(hola['FECHA'].dt.year == 2018) & (hola['FECHA'].dt.month == 6) & (hola['SERIE'] == "146660T3")]))
 # # print(get_df_detalles_ext_ARR())
-
+print(df_full)
 # print(df_ARR[(df_ARR['FECHA'].dt.year == 2018) & (df_ARR['FECHA'].dt.month == 6) & (df_ARR['SERIE'] == "146660T3")])

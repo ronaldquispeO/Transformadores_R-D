@@ -105,7 +105,10 @@ def get_df_detalles_ext_AIS():
 
 df_AIS_detalles = get_df_detalles_ext_AIS()
 df_AIS = df_AIS_detalles[['SERIE','FECHA','AIS']]
-
+df_full_detallado = get_df_detalles_AIS()
+df_full = df_full_detallado[['SERIE','FECHA','AIS']]
+def get_df_AIS():
+    return df_full
 
 def get_df_extendida_AIS():
     return df_AIS

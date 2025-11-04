@@ -76,7 +76,11 @@ def get_df_detalles_ext_NUC():
 df_NUC_detalles = get_df_detalles_ext_NUC()
 df_NUC = df_NUC_detalles[["SERIE", "FECHA", "NUC"]]
 df_NUC = df_NUC.rename(columns={"FECHA DE MUESTRA": "FECHA"})
+df_NUC_detallado = get_df_detalles_NUC()
+df_full = df_NUC_detallado[["SERIE", "FECHA", "NUC"]]
 
+def get_df_NUC():
+    return df_full
 def get_df_extendida_NUC():
     return df_NUC
 
