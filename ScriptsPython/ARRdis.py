@@ -18,7 +18,7 @@ for path in addresses:
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 df["SERIE"] = df["SERIE"].astype(str)
-df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
 df = df.drop(columns=df.columns[0])
 # Aseguramos que FECHA sea datetime
 df["FECHA"] = pd.to_datetime(df["FECHA"], errors="coerce")

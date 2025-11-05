@@ -1,26 +1,16 @@
 import pandas as pd
 
-# Crear un DataFrame de ejemplo
-data = {
+# Creamos un DataFrame de ejemplo
+df = pd.DataFrame({
     'Nombre': ['Ana', 'Luis', 'Carlos'],
-    'Edad': [23, 31, 45],
-    'Ciudad': ['Lima', 'Cusco', 'Arequipa']
-}
+    'Edad': [17, 22, 15]
+})
 
-df = pd.DataFrame(data)
+# Función que determina si es mayor de edad
+def es_mayor(edad):
+    return 'Sí' if edad >= 18 else 'No'
 
-# Mostrar el DataFrame completo
-print("DataFrame completo:\n")
+# Aplicamos la función a la columna 'Edad'
+df['Mayor de Edad'] = df['Edad'].apply(es_mayor)
+
 print(df)
-
-# Seleccionar la primera fila (índice 0)
-print("\nPrimera fila:\n")
-print(df.iloc[0:1])
-
-# Seleccionar la segunda fila y la columna 'Edad'
-print("\nSegunda fila, columna 'Edad':\n")
-print(df.iloc[1, 1])
-
-# Seleccionar las dos primeras filas
-print("\nDos primeras filas:\n")
-print(df.iloc[0:2])

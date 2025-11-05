@@ -20,7 +20,7 @@ for path in addresses:
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 df["SERIE"] = df["SERIE"].astype(str)
-df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------

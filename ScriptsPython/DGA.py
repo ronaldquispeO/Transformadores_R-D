@@ -17,11 +17,12 @@ for path in addresses:
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
-df["SERIE"] = df["SERIE"].astype(str)
-df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "")
+
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
+df["SERIE"] = df["SERIE"].astype(str)
+df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
 df = df.drop(columns=['Unnamed: 0'])
 # df["TENSION"] = df["TENSION"].str.split("/").str[0]
 df = df.iloc[:, :10]
