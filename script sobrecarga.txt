@@ -1,0 +1,181 @@
+def Sobrecarga(load_factors_K_P, ambient_temps_theta_a_P, potencia, tipo):
+
+    load_factors_K_P = load_factors_K_P/potencia
+
+    # --- 1. Establecer los parámetros del transformador ---
+    # Estos parámetros se mantienen como en el ejemplo del Anexo I [1]
+    delta_theta_or = 52 # Aumento de la temperatura del aceite superior a la carga nominal (K)
+    tau_o = 150         # Constante de tiempo del aceite (min)
+    R = 6              # Relación de pérdidas (R)
+    y = 1.3             # Exponente del devanado (y)
+    k21 = 2             # Constante térmica (k21)
+    delta_theta_hr =26 # Aumento de la temperatura del punto caliente sobre la del aceite superior a la corriente nominal (K)
+    tau_w = 7           # Constante de tiempo del devanado (min)
+    x = 0.8             # Exponente del aceite (x)
+    k11 = 0.5           # Constante térmica (k11)
+    k22 = 2             # Constante térmica (k22)
+    
+    # Constantes para el cálculo de la pérdida de vida (para papel térmicamente mejorado)
+    # Temperatura del punto caliente de referencia para V=1 (°C) [2]
+    REF_THETA_H = 110
+    # Constante en el exponente de la ecuación de envejecimiento (15000 en Eq. 3) [2]
+    CONST_EXP_AGEING = 15000
+    
+    # # --- 2. Establecer los datos de entrada [4] ---
+    # # Estos son los datos de la Tabla I.1
+    # times_t_min = list(range(0,41))
+    # ambient_temps_theta_a = [30.3, 29.9, 29.8, 29.5, 29.6, 29.5, 29.5, 28.9, 29.0, 28.6, 28.0, 28.7, 27.8, 28.1, 27.9, 27.1, 26.9, 26.7, 27.2, 26.7, 26.9, 26.5, 26.2, 26.3, 25.4, 25.6, 25.3, 24.8, 24.5, 24.3, 24.1, 24.3, 24.1, 23.4, 23.6, 23.8, 23.1, 23.3, 23.1, 22.3, 22.2]
+    # load_factors_K = [0.81, 0.87, 0.88, 0.86, 0.90, 0.92, 0.95, 0.96, 0.97, 1.00, 1.70, 1.70, 1.73, 1.72, 1.69, 1.68, 1.71, 1.69, 1.67, 1.68, 1.63, 1.59, 1.53, 1.49, 1.41, 1.38, 1.32, 1.28, 1.21, 1.19, 0.87, 0.88, 0.87, 0.86, 0.85, 0.87, 0.83, 0.86, 0.85, 0.82, 0.86]
+    
+    # load_factors_K_P = [1]*96
+    # ambient_temps_theta_a_P = [30]*96 
+    
+    times_t_min_P = list(range(1,97))
+    
+    # --- Crear las nuevas listas con cada elemento repetido 15 veces ---
+    # [expresion for elemento in lista_original for _ in range(veces_a_repetir)]
+    times_t_min = [time for time in times_t_min_P for _ in range(15)]
+    ambient_temps_theta_a = [temp for temp in ambient_temps_theta_a_P for _ in range(15)]
+    load_factors_K = [load for load in load_factors_K_P for _ in range(15)]
+    
+    # Paso de tiempo para las ecuaciones de diferencias (min) [5]
+    delta_t = 9
+    # delta_t = 3
+    
+    # Listas para almacenar los resultados a lo largo del tiempo
+    theta_o_results = []
+    delta_theta_h1_results = []
+    delta_theta_h2_results = []
+    delta_theta_h_results = []
+    theta_h_results = []
+    loss_of_life_min_results = []
+    loss_of_life_days_results = []
+    
+    # --- 3. Calcular las condiciones iniciales (n=0, t=0) ---
+    # Se utilizan los valores iniciales dados en el Anexo I para t=0 [3, 4]
+    current_theta_o = 82 # Temperatura del aceite superior (°C)
+    current_delta_theta_h1 = 52 # Primer término del aumento de temperatura del punto caliente (K)
+    current_delta_theta_h2 = 26 # Segundo término del aumento de temperatura del punto caliente (K)
+    current_loss_of_life_min = 0 # Pérdida de vida acumulada (min)
+    
+    
+    # Almacenar las condiciones iniciales en las listas de resultados
+    theta_o_results.append(current_theta_o)
+    delta_theta_h1_results.append(current_delta_theta_h1)
+    delta_theta_h2_results.append(current_delta_theta_h2)
+    # Calcular delta_theta_h para el estado inicial según Eq. (22) [5]
+    initial_delta_theta_h = current_delta_theta_h1 - current_delta_theta_h2
+    delta_theta_h_results.append(initial_delta_theta_h)
+    # Calcular theta_h para el estado inicial según Eq. (23) [6]
+    theta_h_results.append(current_theta_o + initial_delta_theta_h)
+    loss_of_life_min_results.append(current_loss_of_life_min)
+    # Convertir minutos a días (1440 min en un día)
+    loss_of_life_days_results.append(current_loss_of_life_min / 1440)
+    
+    # --- 4. Resolver las ecuaciones de diferencias [8-10] ---
+    # El bucle comienza desde el paso 1 (n=1) ya que las condiciones iniciales (n=0) ya están establecidas.
+    for n in range(1, len(times_t_min)):
+    # for n in range(1, len(times_t_min)):
+        # Recuperar los valores del paso de tiempo anterior (n-1)
+        prev_theta_o = theta_o_results[-1]
+        prev_delta_theta_h1 = delta_theta_h1_results[-1]
+        prev_delta_theta_h2 = delta_theta_h2_results[-1]
+        prev_loss_of_life_min = loss_of_life_min_results[-1]
+    
+        # Obtener los datos de entrada para el paso de tiempo actual (n)
+        current_K = load_factors_K[n]
+        current_theta_a = ambient_temps_theta_a[n]
+    
+        # Calcular el cambio en la temperatura del aceite superior (D_theta_o) - Ecuación (18) [7]
+        term_oil_factor = (1 + R * current_K**2) / (1 + R)
+        main_term_theta_o = delta_theta_or * (term_oil_factor**x)
+        D_theta_o = (delta_t / (tau_o * k11)) * (main_term_theta_o - (prev_theta_o - current_theta_a))
+    
+        # Calcular la nueva temperatura del aceite superior (theta_o(n)) - Ecuación (19) [5]
+        current_theta_o = prev_theta_o + D_theta_o
+        theta_o_results.append(current_theta_o)
+    
+        # Calcular el cambio en el primer término del aumento de temperatura del punto caliente (D_delta_theta_h1) - Ecuación (20) [5]
+        main_term_h1 = delta_theta_hr * k21 * (current_K**y)
+        D_delta_theta_h1 = (delta_t / (tau_w * k22)) * (main_term_h1 - prev_delta_theta_h1)
+    
+        # Calcular el nuevo primer término del aumento de temperatura del punto caliente (delta_theta_h1(n))
+        current_delta_theta_h1 = prev_delta_theta_h1 + D_delta_theta_h1
+        delta_theta_h1_results.append(current_delta_theta_h1)
+    
+        # Calcular el cambio en el segundo término del aumento de temperatura del punto caliente (D_delta_theta_h2) - Ecuación (21) [5]
+        # Nota: El tiempo constante para este término es (tau_o / k22), según las Ecuaciones (8) y (21).
+        main_term_h2 = delta_theta_hr * (k21 - 1) * (current_K**y)
+        D_delta_theta_h2 = (delta_t / (tau_o / k22)) * (main_term_h2 - prev_delta_theta_h2)
+    
+        # Calcular el nuevo segundo término del aumento de temperatura del punto caliente (delta_theta_h2(n))
+        current_delta_theta_h2 = prev_delta_theta_h2 + D_delta_theta_h2
+        delta_theta_h2_results.append(current_delta_theta_h2)
+    
+        # Calcular el aumento total de la temperatura del punto caliente (delta_theta_h(n)) - Ecuación (22) [5]
+        current_delta_theta_h = current_delta_theta_h1 - current_delta_theta_h2
+        delta_theta_h_results.append(current_delta_theta_h)
+    
+        # Calcular la temperatura final del punto caliente (theta_h(n)) - Ecuación (23) [6]
+        current_theta_h = current_theta_o + current_delta_theta_h
+        theta_h_results.append(current_theta_h)
+    
+        # Calcular la tasa de envejecimiento relativo (V) - Ecuación (3) [2]
+        # Se utiliza la referencia de 110 °C para papel térmicamente mejorado.
+        if tipo == "termoestabilizado": #kraft
+            V = math.exp(CONST_EXP_AGEING / (273 + REF_THETA_H) - CONST_EXP_AGEING / (273 + current_theta_h))
+            # V = math.exp((current_theta_h-98)/6)
+        else:
+            V = 2**((current_theta_h - 98) / 6)
+    
+        # Calcular la pérdida de vida en este paso de tiempo (D_loss_of_life) - Ecuación (25) [8]
+        D_loss_of_life = V * delta_t
+    
+        # Calcular la pérdida de vida acumulada (L(n)) - Ecuación (26) [8]
+        current_loss_of_life_min = prev_loss_of_life_min + D_loss_of_life
+        loss_of_life_min_results.append(current_loss_of_life_min)
+        loss_of_life_days_results.append(current_loss_of_life_min / 1440) # Convertir a días
+    
+    
+    # --- 6. Graficar los resultados ---
+    fig, ax1 = plt.subplots(figsize=(15, 7)) # Crea una figura y el eje principal para las temperaturas
+    
+    # Plotear las temperaturas en el eje principal (ax1)
+    ax1.plot(times_t_min[10:], theta_h_results[10:], color='red', label='Temperatura del Punto Caliente ($\Theta_h$)', linewidth=1.5)
+    ax1.plot(times_t_min[10:], theta_o_results[10:], color='orange', linestyle='--', label='Temperatura del Aceite Superior ($\Theta_o$)', linewidth=1.5)
+    ax1.plot(times_t_min[10:], ambient_temps_theta_a[10:], color='green', linestyle=':', label='Temperatura Ambiente ($\Theta_a$)', linewidth=1.5)
+    
+    # --- Nueva línea constante para el límite de HST ---
+    # np.full(num_elements, 120) crea un array de 1440 elementos, todos con valor 120
+    ax1.plot(times_t_min, np.full(len(times_t_min), 120), color='purple', linestyle='-.', label='Lim HST (120 °C)', linewidth=1.5)
+    
+    
+    # Configuración del eje principal
+    ax1.set_xlabel("Tiempo (min)", fontsize=12)
+    ax1.set_ylabel("Temperatura (°C)", fontsize=12, color='black')
+    ax1.tick_params(axis='y', labelcolor='black')
+    ax1.set_title("Evolución de Temperaturas y Factor de Carga del Transformador", fontsize=14)
+    ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
+    
+    # Crear un segundo eje Y (secundario) para el factor de carga
+    ax2 = ax1.twinx()
+    ax2.plot(times_t_min, load_factors_K, color='blue', linestyle='-.', label='Factor de Carga (K)', linewidth=1.5)
+    ax2.set_ylabel("Factor de Carga (p.u.)", fontsize=12, color='blue')
+    ax2.tick_params(axis='y', labelcolor='blue')
+    ax2.set_ylim(bottom=0) # Asegura que el eje Y del factor de carga empiece en 0 o un valor razonable
+    ax2.set_ylim(0, 1.4) # <--- MODIFICACIÓN AQUÍ: Ajusta el rango vertical de 0.0 a 2.0
+    
+    # Combinar leyendas de ambos ejes y colocarla en la parte inferior central del gráfico
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower center', ncol=2, frameon=True, bbox_to_anchor=(0.5, -0.2))
+    
+    
+    # Mejorar la legibilidad del eje X
+    plt.xticks(rotation=45, ha="right") # Rotar las etiquetas de tiempo
+    plt.tight_layout() # Ajusta el diseño para asegurar que todo quepa sin superposiciones
+    
+    # Mostrar el gráfico
+    plt.show()
+    
+    return times_t_min, load_factors_K, ambient_temps_theta_a, theta_o_results, theta_h_results, loss_of_life_min_results, loss_of_life_days_results
