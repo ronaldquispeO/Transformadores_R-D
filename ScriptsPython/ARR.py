@@ -160,4 +160,5 @@ hola= get_df_detalles_ext_ARR()
 # print(df_full)
 # print(df_ARR[(df_ARR['FECHA'].dt.year == 2018) & (df_ARR['FECHA'].dt.month == 6) & (df_ARR['SERIE'] == "146660T3")])
 
-print(get_df_detalles_rellenado_ARR().head())
+# print(get_df_detalles_rellenado_ARR().head())
+print(df_full[df_full['SERIE'] =='LP-000475'])

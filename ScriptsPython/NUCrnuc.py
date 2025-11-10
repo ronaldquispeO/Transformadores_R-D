@@ -20,7 +20,8 @@ if df is None:
 
 df["SERIE"] = df["SERIE"].astype(str)
 df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
-df = df.drop(columns=['Unnamed: 0'])
+# df = df.drop(columns=['Unnamed: 0'])
+df = df[['SERIE', 'FECHA DE MUESTRA','Valor (MΩ)']]
 df =df.rename(columns={'FECHA DE MUESTRA':'FECHA'})  # Elimina espacios en los nombres de las columnas
 df
 

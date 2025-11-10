@@ -1,0 +1,9 @@
+{
+  "singlestore": {
+    "host": "singlestore.luzdelsur.com.pe",
+    "port": 3306,
+    "user": "roquispec",
+    "password": "",
+    "database": "bronze"
+  }
+}

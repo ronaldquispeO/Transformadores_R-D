@@ -1,16 +1,13 @@
 import pandas as pd
 
-# Creamos un DataFrame de ejemplo
-df = pd.DataFrame({
-    'Nombre': ['Ana', 'Luis', 'Carlos'],
-    'Edad': [17, 22, 15]
-})
+df  = pd.DataFrame({'A':[1,2,3],'B':[4,5,6]})  
+print(df)
 
-# Función que determina si es mayor de edad
-def es_mayor(edad):
-    return 'Sí' if edad >= 18 else 'No'
+lista = ['A','B']
 
-# Aplicamos la función a la columna 'Edad'
-df['Mayor de Edad'] = df['Edad'].apply(es_mayor)
+for i in lista:
+    df[i + ' al cuadrado'] = df.apply(lambda row: row[i]**2,axis =1)
 
 print(df)
+
+

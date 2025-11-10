@@ -27,6 +27,7 @@ df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
 # ---------------------------
 # df["SERIE"] = df["SERIE"].astype(str)
 df = df.iloc[:, 1:]   # quitar primera columna vacía
+
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors="coerce")
 df = df.dropna(subset=['FECHA'])
 df_full = df.copy()   # copia de detalles originales

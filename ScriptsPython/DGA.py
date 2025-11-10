@@ -95,7 +95,7 @@ df['DGA'] = df.apply(lambda row: sum(row[f'puntaje_{gas}']*weight[gas] for gas i
 df_DGA = df[['SERIE','FECHA','DGA']]
 
 # ---------------------------
-# EXTENSIÓN DEL CALENDARIO DESDE 2025
+# EXTENSIÓN DEL CALENDARIO DESDE 2015
 # ---------------------------
 inicio = "2015-01-01"
 desde_2025 = f"{pd.Timestamp.today().year}-01-01"

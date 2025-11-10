@@ -19,9 +19,9 @@ if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 df["SERIE"] = df["SERIE"].astype(str)
 df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
-df = df.drop(columns=['Unnamed: 0'])
-
+# df = df.drop(columns=['Unnamed: 0'])
 df = df.rename(columns ={'FECHA DE MUESTRA':'FECHA'})
+df = df[['SERIE', 'FECHA'] + [col for col in df.columns if col.endswith("mA")]] # seleccionar columnas relevantes
 
 
 # Calcular columnas delta respecto al valor inicial por SERIE en la fecha mínima

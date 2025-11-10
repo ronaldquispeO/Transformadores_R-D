@@ -7,11 +7,11 @@ sys.path.append(r"C:\Users\RONALD Q\OneDrive - LUZ DEL SUR S.A.A\Documentos\Estu
 
 from DGA import get_df_extendida_DGA,get_df_DGA
 from ACE import get_df_extendida_ACE,get_df_ACE
-from ARR import get_df_extendida_ARR,get_df_ARR,get_df_detalles_rellenado_ARR
-from AIS import get_df_extendida_AIS,get_df_AIS,get_df_detalles_rellenado_AIS
-from NUC import get_df_extendida_NUC,get_df_NUC,get_df_detalles_rellenado_NUC
+from ARR import get_df_extendida_ARR,get_df_detalles_rellenado_ARR
+from AIS import get_df_extendida_AIS,get_df_detalles_rellenado_AIS
+from NUC import get_df_extendida_NUC,get_df_detalles_rellenado_NUC
 from OLTC import get_df_extendida_OLTC,get_df_OLTC
-from BUS import get_df_extendida_BUS,get_df_BUS,get_df_detalles_rellenado_BUS
+from BUS import get_df_extendida_BUS,get_df_detalles_rellenado_BUS
 
 # =============================
 # PESOS DE LOS ÍNDICES
@@ -101,6 +101,9 @@ def obtener_HI_original():
     columnas_finales = ["SERIE", "FECHA", "HI"] + [col for col in tablas.keys()]
     resultado = resultado[columnas_finales]
     
+    # ELIMINAR FILAS DONDE HI ES NULL
+    resultado = resultado.dropna(subset=['HI'])
+    
     return resultado
 
 # =============================
@@ -160,6 +163,9 @@ def obtener_HI():
     # Selección de columnas finales
     columnas_finales = ["SERIE", "FECHA", "HI"] + [col for col in tablas.keys()]
     resultado = resultado[columnas_finales]
+    
+    # ELIMINAR FILAS DONDE HI ES NULL
+    resultado = resultado.dropna(subset=['HI'])
     
     return resultado
 

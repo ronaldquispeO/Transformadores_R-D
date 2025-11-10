@@ -19,7 +19,8 @@ if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 df["SERIE"] = df["SERIE"].astype(str)
 df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
-df = df.drop(columns=df.columns[0])
+# df = df.drop(columns=df.columns[0])
+df = df[['SERIE', 'FECHA'] + [col for col in df.columns if col.endswith(('[%]', '2'))]] # seleccionar columnas relevantes
 # Aseguramos que FECHA sea datetime
 df["FECHA"] = pd.to_datetime(df["FECHA"], errors="coerce")
 # df["SERIE"] = df["SERIE"].astype(str)

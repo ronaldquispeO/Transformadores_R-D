@@ -169,3 +169,6 @@ df_arr_detalles = df_arr[['SERIE','FECHA','AIS']]
 # print(df_AIS)
 print(get_df_detalles_rellenado_AIS()[get_df_detalles_rellenado_AIS()['SERIE'] == '123158T'])
 # print(get_df_detalles_AIS().head())
+
+
+print(df_full[df_full['SERIE'] =='LP-000475'])
