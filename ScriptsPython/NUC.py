@@ -2,14 +2,15 @@ import pandas as pd
 from functools import reduce
 from NUCrnuc import get_df_RNUC, get_df_detalles_ext_RNUC
 from NUCiex import get_df_IEX, get_df_detalles_ext_IEX
-
+from NUCvex import get_df_VEX,get_df_detalles_ext_VEX
+# from NUCvex import 
 # =============================
 # CONFIGURACIÓN
 # =============================
 PESOS_NUC = {
     'RNUC': 3,
     'IEX': 5,
-    # 'VEX': 3,  # Agregar cuando esté disponible
+    'VEX': 3,  # Agregar cuando esté disponible
 }
 
 # =============================
@@ -28,11 +29,12 @@ def procesar_dataframe(resultado, tablas):
     columnas_finales = ["SERIE", "FECHA", "NUC"] + list(tablas.keys())
     return resultado[columnas_finales]
 
-def obtener_tablas(rnuc_func, iex_func):
+def obtener_tablas(rnuc_func, iex_func,vex_func):
     """Obtiene y filtra las tablas disponibles"""
     tablas = {
         "RNUC": rnuc_func(),
         "IEX": iex_func(),
+        "VEX": vex_func()
         # "VEX": VEX,  # Agregar cuando esté disponible
     }
     return {k: v for k, v in tablas.items() if v is not None}
@@ -41,7 +43,7 @@ def obtener_tablas(rnuc_func, iex_func):
 # FUNCIONES PRINCIPALES
 # =============================
 def get_df_detalles_NUC():
-    tablas = obtener_tablas(get_df_RNUC, get_df_IEX)
+    tablas = obtener_tablas(get_df_RNUC, get_df_IEX,get_df_VEX)
     if not tablas:
         return pd.DataFrame()
     
@@ -52,7 +54,7 @@ def get_df_detalles_NUC():
     return procesar_dataframe(resultado, tablas)
 
 def get_df_detalles_ext_NUC():
-    tablas = obtener_tablas(get_df_detalles_ext_RNUC, get_df_detalles_ext_IEX)
+    tablas = obtener_tablas(get_df_detalles_ext_RNUC, get_df_detalles_ext_IEX,get_df_detalles_ext_VEX)
     if not tablas:
         return pd.DataFrame()
     
@@ -63,7 +65,7 @@ def get_df_detalles_ext_NUC():
     return procesar_dataframe(resultado, tablas)
 
 def get_df_detalles_rellenado_NUC():
-    tablas = obtener_tablas(get_df_RNUC, get_df_IEX)
+    tablas = obtener_tablas(get_df_RNUC, get_df_IEX,get_df_VEX)
     if not tablas:
         return pd.DataFrame()
     

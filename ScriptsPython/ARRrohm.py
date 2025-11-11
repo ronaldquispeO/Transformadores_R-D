@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import os
+import json
+
 # ---------------------------
 # LECTURA DE DATOS
 # ---------------------------
@@ -23,6 +25,7 @@ if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
 df["SERIE"] = df["SERIE"].astype(str)
 df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
+
 # ---------------------------
 # LIMPIEZA DE DATOS
 # ---------------------------
@@ -77,9 +80,15 @@ df_ROHM = df[['SERIE', 'FECHA', 'ROHM']]
 # ---------------------------
 # EXTENSIÓN DEL CALENDARIO DESDE 2025
 # ---------------------------
-inicio = "2015-01-01"
-desde_2025 = f"{pd.Timestamp.today().year}-01-01"
-fecha_inicio = pd.Timestamp(inicio)  # en el 2026 cambiar ---****
+# ---------------------------
+# CARGAR CONFIGURACIÓN
+# ---------------------------
+config_path = r"C:\Users\roquispec\OneDrive - LUZ DEL SUR S.A.A\Documentos\Estudios de Ingreso\ProyectoRyD_V2\notebooks\config.json"
+with open(config_path) as f:
+    config = json.load(f)
+
+fecha_inicio = pd.Timestamp(config.get("fecha_inicio", "2015-01-01"))
+print(f"✅ Fecha de inicio configurada: {fecha_inicio}")
 fecha_fin = pd.Timestamp.today().normalize()
 fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
 todas_series = df['SERIE'].dropna().unique()

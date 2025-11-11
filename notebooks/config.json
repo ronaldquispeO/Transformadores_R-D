@@ -5,5 +5,6 @@
     "user": "roquispec",
     "password": "",
     "database": "bronze"
-  }
+  },
+  "fecha_inicio": "2015-01-01"
 }

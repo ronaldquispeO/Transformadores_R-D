@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import os
+import json
+
 # Lista de posibles rutas
 addresses = [
     'C:/Users/RONALD Q/OneDrive - LUZ DEL SUR S.A.A/Documentos/Estudios de Ingreso/ProyectoRyD_V2/Basededatos/RDIS.xlsx',
@@ -65,8 +67,14 @@ df['RDIS'] = np.select(conditions, choices, default=np.nan)
 df_DIS = df[['SERIE', 'FECHA', 'RDIS']].copy()
 
 # 2. Tabla con fechas extendidas: SERIE, FECHA, RDIS
-inicio = "2015-01-01"
-fecha_inicio = pd.Timestamp(inicio)
+# CARGAR CONFIGURACIÓN
+config_path = r"C:\Users\roquispec\OneDrive - LUZ DEL SUR S.A.A\Documentos\Estudios de Ingreso\ProyectoRyD_V2\notebooks\config.json"
+with open(config_path) as f:
+    config = json.load(f)
+
+fecha_inicio = pd.Timestamp(config.get("fecha_inicio", "2015-01-01"))
+print(f"✅ Fecha de inicio configurada: {fecha_inicio}")
+
 fecha_fin = pd.Timestamp.today().normalize()
 fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
 todas_series = df['SERIE'].dropna().unique()

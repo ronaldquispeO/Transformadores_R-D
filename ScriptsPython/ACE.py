@@ -3,10 +3,11 @@
 # =====================================
 import pandas as pd
 import os
+import json
+
 # =====================================
 # CARGA DE DATOS
 # =====================================
-# Lista de posibles rutas
 addresses = [
     'C:/Users/RONALD Q/OneDrive - LUZ DEL SUR S.A.A/Documentos/Estudios de Ingreso/ProyectoRyD_V2/Basededatos/ACE.xlsx',
     'C:/Users/roquispec/OneDrive - LUZ DEL SUR S.A.A/Documentos/Estudios de Ingreso/ProyectoRyD_V2/Basededatos/ACE.xlsx',
@@ -15,19 +16,21 @@ addresses = [
 
 df = None
 for path in addresses:
-    if os.path.exists(path):   # verifica si existe
-        df = pd.read_excel(path,header=1)
+    if os.path.exists(path):
+        df = pd.read_excel(path, header=1)
         print(f"✅ Archivo cargado desde: {path}")
         break
 
 if df is None:
     raise FileNotFoundError("❌ No se encontró el archivo en ninguna de las rutas especificadas.")
-df["SERIE"] = df["SERIE"].astype(str)
-df['SERIE'] = df['SERIE'].astype(str).str.replace(" ", "").str.upper()
+
+
 
 # =====================================
 # LIMPIEZA Y FORMATEO DE DATOS
 # =====================================
+df["SERIE"] = df["SERIE"].astype(str)
+df['SERIE'] = df['SERIE'].str.replace(" ", "").str.upper()
 df.columns = df.columns.str.replace(r"\n", " ", regex=True).str.strip()
 
 cols_drop = [
@@ -37,12 +40,13 @@ cols_drop = [
     "Gravedad Específica (ASTM D1298, g/mL)",
     "Humedad ambiente (%)",
 ]
-df = df.drop(columns=cols_drop)
+df = df.drop(columns=[col for col in cols_drop if col in df.columns])
 
 if 'FECHA DE MUESTRA' in df.columns:
     df = df.rename(columns={'FECHA DE MUESTRA': 'FECHA'})
 elif 'FECHA DE\nMUESTRA' in df.columns:
     df = df.rename(columns={'FECHA DE\nMUESTRA': 'FECHA'})
+
 df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
 df["TENSION"] = df["TENSION"].str.split("/").str[0]
 
@@ -59,14 +63,14 @@ rename_map = {
 df = df.rename(columns=rename_map)
 
 orden = ["SERIE", "TENSION", "FECHA", "FP25", "FP100", "HU", "AC", "TIF", "CO", "RD", "IO"]
-df = df[orden]
+df = df[[col for col in orden if col in df.columns]]
 
 num_cols = ["FP25", "FP100", "HU", "AC", "TIF", "CO", "RD", "IO"]
 df[num_cols] = df[num_cols].apply(pd.to_numeric, errors="coerce")
 df["SERIE"] = df["SERIE"].astype(str)
-# Guardar tabla original sin tensión
-# df_full = df.drop(columns=["TENSION"]).copy()
+
 df_full = df.drop(columns=["TENSION"]).copy()
+
 # =====================================
 # PUNTAJES IEEE
 # =====================================
@@ -95,19 +99,13 @@ reglas = {
     },
 }
 
-def puntaje_parametro(valor, tension, parametro):
-    if pd.isna(valor):
-        return float("nan")
-    reglas_tension = reglas.get(str(tension), {})
-    condiciones = reglas_tension.get(parametro, [])
-    for condicion, puntaje in condiciones:
-        if condicion(valor):
-            return puntaje
-    return 1
-
 for p in num_cols:
-    df[f"Puntaje_{p}"] = df.apply(lambda row: puntaje_parametro(row[p], row["TENSION"], p), axis=1)
-df_otro = df.copy()
+    df[f"Puntaje_{p}"] = df.apply(
+        lambda row: next((puntaje for cond, puntaje in reglas.get(str(row["TENSION"]), {}).get(p, []) if cond(row[p])), 1) 
+        if pd.notna(row[p]) else float("nan"), 
+        axis=1
+    )
+
 # =====================================
 # CÁLCULO ACE
 # =====================================
@@ -122,47 +120,55 @@ pesos = {
     "Puntaje_IO": 1,
 }
 
-def calcular_ACE(row, pesos):
-    valores = [row[col] * peso for col, peso in pesos.items() if pd.notna(row[col])]
-    total_peso = sum(peso for col, peso in pesos.items() if pd.notna(row[col]))
-    return sum(valores) / total_peso if total_peso > 0 else float("nan")
+df["ACE"] = df.apply(
+    lambda row: sum(row[col] * peso for col, peso in pesos.items() if pd.notna(row[col])) / 
+    sum(peso for col, peso in pesos.items() if pd.notna(row[col])) 
+    if any(pd.notna(row[col]) for col in pesos.keys()) else float("nan"), 
+    axis=1
+)
 
-df["ACE"] = df.apply(lambda row: calcular_ACE(row, pesos), axis=1)
 df_ACE = df[["SERIE", "FECHA", "ACE"]]
 
 # =====================================
-# EXTENSIÓN DEL CALENDARIO (DESDE 2025)
+# EXTENSIÓN DEL CALENDARIO
 # =====================================
-inicio = "2015-01-01"
-desde_2025 = f"{pd.Timestamp.today().year}-01-01"
-fecha_inicio = pd.Timestamp(inicio)  # en el 2026 cambiar ---****
+# =====================================
+# CARGAR CONFIGURACIÓN
+# =====================================
+config_path = r"C:\Users\roquispec\OneDrive - LUZ DEL SUR S.A.A\Documentos\Estudios de Ingreso\ProyectoRyD_V2\notebooks\config.json"
+with open(config_path) as f:
+    config = json.load(f)
+
+fecha_inicio = pd.Timestamp(config.get("fecha_inicio", "2015-01-01"))
+print(f"✅ Fecha de inicio configurada: {fecha_inicio}")
+
 fecha_fin = pd.Timestamp.today().normalize()
 fechas = pd.date_range(fecha_inicio, fecha_fin, freq="D")
+
 todas_series = df['SERIE'].dropna().unique()
 calendario = pd.MultiIndex.from_product([todas_series, fechas], names=["SERIE","FECHA"])
 df_calendario = pd.DataFrame(index=calendario).reset_index()
 
-# Última medición antes de 2025
 ultimos_2024 = df_ACE[df_ACE['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
 ultimos_2024['FECHA'] = fecha_inicio
 base_ext = pd.concat([df_ACE, ultimos_2024], ignore_index=True)
+
 df_extendida = pd.merge(df_calendario, base_ext, on=["SERIE","FECHA"], how="left")
 df_extendida = df_extendida.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
-# Extender detalles
 ultimos_2024_det = df_full[df_full['FECHA'] < fecha_inicio].sort_values('FECHA').groupby('SERIE').tail(1)
 ultimos_2024_det['FECHA'] = fecha_inicio
 base_ext_det = pd.concat([df_full, ultimos_2024_det], ignore_index=True)
+
 df_extendida_detalles = pd.merge(df_calendario, base_ext_det, on=["SERIE","FECHA"], how="left")
 df_extendida_detalles = df_extendida_detalles.groupby("SERIE").apply(lambda g: g.ffill()).reset_index(drop=True)
 
 # =====================================
-# DETALLES + ACE
+# COMBINACIÓN DE DATOS
 # =====================================
 df_detalles = pd.merge(df_full, df_ACE, on=["SERIE","FECHA"], how="left")
 df_detalles_ext = pd.merge(df_extendida_detalles, df_extendida, on=["SERIE","FECHA"], how="left")
 
-# Reordenar para que ACE quede después de FECHA
 def reordenar(df_in):
     cols = list(df_in.columns)
     if "ACE" in cols:
@@ -178,26 +184,28 @@ df_detalles_ext = reordenar(df_detalles_ext)
 # FUNCIONES
 # =====================================
 def get_df_ACE():
-    return df_ACE
+    return df_ACE.copy()
 
 def get_df_extendida_ACE():
-    return df_extendida
+    return df_extendida.copy()
 
 def get_df_detalles_ACE():
-    return df_detalles
+    return df_detalles.copy()
 
 def get_df_detalles_ext_ACE():
-    return df_detalles_ext
+    return df_detalles_ext.copy()
 
 # =====================================
-# PRUEBA
+# RESULTADOS
 # =====================================
-print('\n ====== TABLA CON FECHAS ORIGINALES ====== \n')
-print(get_df_ACE())
-print('\n ====== TABLA CON FECHAS EXTENDIDAS ====== \n')
+print('\n====== TABLA CON FECHAS ORIGINALES ======\n')
+print(get_df_ACE().head())
+
+print('\n====== TABLA CON FECHAS EXTENDIDAS ======\n')
 print(get_df_extendida_ACE().head())
-print('\n ====== TABLA DE DETALLES CON FECHAS ORIGINALES ====== \n')
-print(get_df_detalles_ACE().head())
-print('\n ====== TABLA DE DETALLES CON FECHAS EXTENDIDAS ====== \n')
-print(get_df_detalles_ext_ACE().tail())
 
+print('\n====== TABLA DE DETALLES CON FECHAS ORIGINALES ======\n')
+print(get_df_detalles_ACE().head())
+
+print('\n====== TABLA DE DETALLES CON FECHAS EXTENDIDAS ======\n')
+print(get_df_detalles_ext_ACE().tail())
